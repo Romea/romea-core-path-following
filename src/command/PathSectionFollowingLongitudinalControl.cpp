@@ -17,6 +17,7 @@
 #include <memory>
 
 // romea
+#include "romea_core_path_following/PathFollowingUtils.hpp"
 #include "romea_core_path_following/command/PathSectionFollowingLongitudinalControl.hpp"
 
 namespace romea
@@ -36,28 +37,31 @@ PathSectionFollowingLongitudinalControl<CommandType>::PathSectionFollowingLongit
 template<class CommandType>
 double PathSectionFollowingLongitudinalControl<CommandType>::computeLinearSpeed(
   const PathFollowingSetPoint & setPoint,
-  const PathFrenetPose2D & /*frenetPose*/,
+  const PathFrenetPose2D & frenetPose,
   const PathPosture2D & /*pathPosture*/,
-  const OdometryMeasure & /*odometryMeasure*/,
+  const OdometryMeasure & odometryMeasure,
   const Twist2D & /*filteredTwist*/)
 {
-  return setPoint.linearSpeed;
-  // const double &EcartLat = frenet_pose_.lateralDeviation;
-  // const double & EcartAng = frenet_pose_.courseDeviation;
-  // const double & steering = front_steering_angle_;
+  double desiredLinearSpeed = setPoint.linearSpeed;
+  double desiredLateralDeviation = setPoint.lateralDeviation;
 
-  // double flag = 1;
-  // if (fabs(steering) < 10 / 180. * M_PI) {flag = 0;}
+  const double & EcartLat = frenetPose.lateralDeviation;
+  const double & EcartAng = frenetPose.courseDeviation;
+  const double & steering = getFrontSteeringAngle(odometryMeasure);
 
-  // linear_speed_command_ =
-  //   fabs(desired_linear_speed_) -
-  //   2 * (EcartLat - desired_lateral_deviation_) * (EcartLat - desired_lateral_deviation_) -
-  //   10 * EcartAng * EcartAng - 1 * flag * fabs(steering);
-  // if (linear_speed_command_ < minimal_linear_speed_command_) {
-  //   linear_speed_command_ = minimal_linear_speed_command_;
-  // }
+  double flag = 1;
+  if (fabs(steering) < 10 / 180. * M_PI) {flag = 0;}
 
-  // linear_speed_command_ = std::copysign(linear_speed_command_, desired_linear_speed_);
+  double linearSpeedCommand =
+    fabs(desiredLinearSpeed) -
+    2 * (EcartLat - desiredLateralDeviation) * (EcartLat - desiredLateralDeviation) -
+    10 * EcartAng * EcartAng - 1 * flag * fabs(steering);
+
+  if (linearSpeedCommand < minimalLinearSpeed_) {
+    linearSpeedCommand = minimalLinearSpeed_;
+  }
+
+  return std::copysign(linearSpeedCommand, desiredLinearSpeed);
 }
 
 //-----------------------------------------------------------------------------
