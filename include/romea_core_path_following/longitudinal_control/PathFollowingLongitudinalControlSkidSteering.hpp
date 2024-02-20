@@ -30,15 +30,13 @@ class PathFollowingLongitudinalControlSkidSteering
   : public PathFollowingLongitudinalControlBase<SkidSteeringCommand>
 {
 public:
-  // struct Parameters
-  // {
+  struct Parameters
+  {
 
-  // };
+  };
 
 public:
-  // explicit PathFollowingLongitudinalControlSkidSteering(const Parameters & parameters);
-
-  PathFollowingLongitudinalControlSkidSteering();
+  explicit PathFollowingLongitudinalControlSkidSteering(const Parameters & parameters);
 
   double computeLinearSpeed(
     const PathFollowingSetPoint & setPoint,

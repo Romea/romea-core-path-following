@@ -23,7 +23,8 @@ namespace core
 {
 
 //-----------------------------------------------------------------------------
-PathFollowingLongitudinalControlSkidSteering::PathFollowingLongitudinalControlSkidSteering()
+PathFollowingLongitudinalControlSkidSteering::PathFollowingLongitudinalControlSkidSteering(
+  const Parameters & parameters)
 {
 }
 

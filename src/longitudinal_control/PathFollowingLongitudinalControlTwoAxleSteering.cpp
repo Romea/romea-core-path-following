@@ -23,7 +23,8 @@ namespace core
 {
 
 //-----------------------------------------------------------------------------
-PathFollowingLongitudinalControlTwoAxleSteering::PathFollowingLongitudinalControlTwoAxleSteering()
+PathFollowingLongitudinalControlTwoAxleSteering::PathFollowingLongitudinalControlTwoAxleSteering(
+  const Parameters & parameters)
 {
 }
 

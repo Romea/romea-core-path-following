@@ -30,15 +30,13 @@ class PathFollowingLongitudinalControlTwoAxleSteering
   : public PathFollowingLongitudinalControlBase<TwoAxleSteeringCommand>
 {
 public:
-  // struct Parameters
-  // {
+  struct Parameters
+  {
 
-  // };
+  };
 
 public:
-  // explicit PathFollowingLongitudinalControlTwoAxleSteering(const Parameters & parameters);
-
-  PathFollowingLongitudinalControlTwoAxleSteering();
+  explicit PathFollowingLongitudinalControlTwoAxleSteering(const Parameters & parameters);
 
   double computeLinearSpeed(
     const PathFollowingSetPoint & setPoint,
