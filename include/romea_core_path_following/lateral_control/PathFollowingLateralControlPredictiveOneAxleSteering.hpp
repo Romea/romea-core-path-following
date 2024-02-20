@@ -21,45 +21,53 @@
 
 // romea
 #include "romea_core_control/command/FollowTrajectoryPredictiveSliding.hpp"
-#include "romea_core_path_following/command/PathSectionFollowingBase.hpp"
+#include "romea_core_path_following/lateral_control/PathFollowingLateralControlBase.hpp"
 
 namespace romea
 {
 namespace core
 {
 
-using PathSectionFollowingPredictiveParameters = FollowTrajectoryPredictiveSliding::Parameters;
-
-template<class CommandType>
-class PathSectionFollowingPredictive : public PathSectionFollowingBase<CommandType>
+class PathFollowingLateralControlPredictiveOneAxleSteering
+  : public PathFollowingLateralControlBase<OneAxleSteeringCommand, AxleSteeringSlidings>
 {
 public:
-  using OdometryMeasure = typename PathFollowingTraits<CommandType>::Measure;
-  using CommandLimits = typename PathFollowingTraits<CommandType>::Limits;
-  using SlidingObserver = PathFollowingSlidingObserverBase<CommandType>;
-  using LongitudinalControl = PathSectionFollowingLongitudinalControl<CommandType>;
-  using LongitudinalControlParameters = typename LongitudinalControl::Parameters;
   using LateralControl = FollowTrajectoryPredictiveSliding;
-  using LateralControlParameters = LateralControl::Parameters;
+
+  struct Gains
+  {
+    double frontKD;
+  };
+  struct Parameters
+  {
+    Gains gains;
+    int horizon;
+    double a0;
+    double a1;
+    double b1;
+    double b2;
+  };
 
 public:
-  PathSectionFollowingPredictive(
+  PathFollowingLateralControlPredictiveOneAxleSteering(
     const double & wheelbase,
     const MobileBaseInertia & inertia,
-    const LongitudinalControlParameters & longitudinalControlParameters,
-    const LateralControlParameters & lateralControlParameters,
-    const CommandLimits & commandLimits);
+    const Parameters & parameter
+  );
 
-private:
-  SteeringAngles computeSteeringAngles_(
+  OneAxleSteeringCommand computeCommand(
     const PathFollowingSetPoint & setPoint,
+    const CommandLimits & commandLimits,
     const PathFrenetPose2D & frenetPose,
     const PathPosture2D & pathPosture,
     const double & futurePathCurvature,
     const OdometryMeasure & odometryMeasure,
-    const Twist2D & filteredTwist) override;
+    const AxleSteeringSlidings & slidings = {}) override;
+
+  void updateGains(const Gains & gains);
 
 private:
+  SharedVariable<Gains> gains_;
   LateralControl lateralControl_;
 };
 

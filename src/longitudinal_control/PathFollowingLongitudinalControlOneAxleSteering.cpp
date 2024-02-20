@@ -12,13 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-
-// std
-#include <memory>
-
-// romea
 #include "romea_core_path_following/PathFollowingUtils.hpp"
-#include "romea_core_path_following/command/PathSectionFollowingLongitudinalControl.hpp"
+#include \
+  "romea_core_path_following/longitudinal_control/PathFollowingLongitudinalControlOneAxleSteering.hpp"
 
 namespace romea
 {
@@ -26,16 +22,14 @@ namespace core
 {
 
 //-----------------------------------------------------------------------------
-template<class CommandType>
-PathSectionFollowingLongitudinalControl<CommandType>::PathSectionFollowingLongitudinalControl(
+PathFollowingLongitudinalControlOneAxleSteering::PathFollowingLongitudinalControlOneAxleSteering(
   const Parameters & parameters)
 : minimalLinearSpeed_(parameters.minimalLinearSpeed)
 {
 }
 
 //-----------------------------------------------------------------------------
-template<class CommandType>
-double PathSectionFollowingLongitudinalControl<CommandType>::computeLinearSpeed(
+double PathFollowingLongitudinalControlOneAxleSteering::computeLinearSpeed(
   const PathFollowingSetPoint & setPoint,
   const PathFrenetPose2D & frenetPose,
   const PathPosture2D & /*pathPosture*/,
@@ -65,21 +59,16 @@ double PathSectionFollowingLongitudinalControl<CommandType>::computeLinearSpeed(
 }
 
 //-----------------------------------------------------------------------------
-template<class CommandType>
-void PathSectionFollowingLongitudinalControl<CommandType>::log(SimpleFileLogger & /*logger*/)
+void PathFollowingLongitudinalControlOneAxleSteering::log(SimpleFileLogger & /*logger*/)
 {
 
 }
 
 //-----------------------------------------------------------------------------
-template<class CommandType>
-void PathSectionFollowingLongitudinalControl<CommandType>::reset()
+void PathFollowingLongitudinalControlOneAxleSteering::reset()
 {
 
 }
-
-template class PathSectionFollowingLongitudinalControl<OneAxleSteeringCommand>;
-template class PathSectionFollowingLongitudinalControl<TwoAxleSteeringCommand>;
 
 }  // namespace core
 }  // namespace romea

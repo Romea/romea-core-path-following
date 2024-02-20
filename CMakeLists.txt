@@ -17,16 +17,19 @@ find_package(BLAS REQUIRED)
 find_package(nlohmann_json 3.7 REQUIRED)
 
 add_library(${PROJECT_NAME} SHARED
-  src/PathFollowing.cpp
+  # src/PathFollowing.cpp
   src/PathFollowingLogs.cpp
   src/PathFollowingSetPoint.cpp
   src/PathFollowingUtils.cpp
-  src/command/PathSectionFollowingBase.cpp
-  src/command/PathSectionFollowingClassic.cpp
-  src/command/PathSectionFollowingPredictive.cpp
-  src/command/PathSectionFollowingLongitudinalControl.cpp
-  src/observer/PathFollowingSlidingObserverCinematicLyapunov.cpp
-  src/observer/PathFollowingSlidingObserverCinematicLinearTangent.cpp
+  src/lateral_control/PathFollowingLateralControlClassicOneAxleSteering.cpp
+  src/lateral_control/PathFollowingLateralControlClassicTwoAxleSteering.cpp
+  src/lateral_control/PathFollowingLateralControlPredictiveOneAxleSteering.cpp
+  src/lateral_control/PathFollowingLateralControlPredictiveTwoAxleSteering.cpp
+  src/longitudinal_control/PathFollowingLongitudinalControlOneAxleSteering.cpp
+  src/longitudinal_control/PathFollowingLongitudinalControlSkidSteering.cpp
+  src/longitudinal_control/PathFollowingLongitudinalControlTwoAxleSteering.cpp
+  src/sliding_observer/PathFollowingSlidingObserverClassicCinematicLyapunov.cpp
+  src/sliding_observer/PathFollowingSlidingObserverClassicCinematicLinearTangent.cpp
 )
 
 target_include_directories(${PROJECT_NAME} PUBLIC

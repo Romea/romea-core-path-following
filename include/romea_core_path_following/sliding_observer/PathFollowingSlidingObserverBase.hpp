@@ -29,12 +29,11 @@ namespace romea
 namespace core
 {
 
-using SlidingAngles = FrontRearData;
-
-template<class CommandType>
+template<typename CommandType, typename SlidingsType>
 class PathFollowingSlidingObserverBase
 {
 public:
+  using Slidings = SlidingsType;
   using OdometryMeasure = typename PathFollowingTraits<CommandType>::Measure;
 
 public:
@@ -42,7 +41,7 @@ public:
 
   virtual ~PathFollowingSlidingObserverBase() = default;
 
-  virtual SlidingAngles computeSlidingAngles(
+  virtual SlidingsType computeSlidings(
     const PathFrenetPose2D & frenetPose,
     const PathPosture2D & pathPosture,
     const OdometryMeasure & odometryMeasure,

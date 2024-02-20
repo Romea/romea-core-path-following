@@ -18,43 +18,49 @@
 
 // romea
 #include "romea_core_control/command/FollowTrajectoryClassicSliding.hpp"
-#include "romea_core_path_following/command/PathSectionFollowingBase.hpp"
+#include "romea_core_path_following/lateral_control/PathFollowingLateralControlBase.hpp"
 
 namespace romea
 {
 namespace core
 {
 
-template<class CommandType>
-class PathSectionFollowingClassic : public PathSectionFollowingBase<CommandType>
+class PathFollowingLateralControlClassicTwoAxleSteering
+  : public PathFollowingLateralControlBase<TwoAxleSteeringCommand, AxleSteeringSlidings>
 {
 public:
-  using OdometryMeasure = typename PathFollowingTraits<CommandType>::Measure;
-  using CommandLimits = typename PathFollowingTraits<CommandType>::Limits;
-  using SlidingObserver = PathFollowingSlidingObserverBase<CommandType>;
-  using LongitudinalControl = PathSectionFollowingLongitudinalControl<CommandType>;
-  using LongitudinalControlParameters = typename LongitudinalControl::Parameters;
   using LateralControl = FollowTrajectoryClassicSliding;
-  using LateralControlParameters = LateralControl::Parameters;
+
+  struct Gains
+  {
+    double frontKD;
+    double rearKD;
+  };
+
+  struct Parameters
+  {
+    Gains gains;
+  };
 
 public:
-  PathSectionFollowingClassic(
+  PathFollowingLateralControlClassicTwoAxleSteering(
     const double & wheelbase,
     const MobileBaseInertia & inertia,
-    const LongitudinalControlParameters & longitudinalControlParameters,
-    const LateralControlParameters & lateralControlParameters,
-    const CommandLimits & commandLimits);
+    const Parameters & parameters);
 
-private:
-  SteeringAngles computeSteeringAngles_(
+  TwoAxleSteeringCommand computeCommand(
     const PathFollowingSetPoint & setPoint,
+    const CommandLimits & commandLimits,
     const PathFrenetPose2D & frenetPose,
     const PathPosture2D & pathPosture,
     const double & futurePathCurvature,
     const OdometryMeasure & odometryMeasure,
-    const Twist2D & filteredTwist) override;
+    const AxleSteeringSlidings & slidings = {}) override;
+
+  void updateGains(const Gains & gains);
 
 private:
+  SharedVariable<Gains> gains_;
   LateralControl lateralControl_;
 };
 

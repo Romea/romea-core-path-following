@@ -16,7 +16,8 @@
 // romea
 #include "romea_core_common/math/Algorithm.hpp"
 #include "romea_core_path_following/PathFollowingUtils.hpp"
-#include "romea_core_path_following/observer/PathFollowingSlidingObserverCinematicLyapunov.hpp"
+#include \
+  "romea_core_path_following/sliding_observer/PathFollowingSlidingObserverClassicCinematicLyapunov.hpp"
 
 
 namespace romea
@@ -26,8 +27,8 @@ namespace core
 
 //-----------------------------------------------------------------------------
 template<typename CommandType>
-PathFollowingSlidingObserverCinematicLyapunov<CommandType>::
-PathFollowingSlidingObserverCinematicLyapunov(
+PathFollowingSlidingObserverClassicCinematicLyapunov<CommandType>::
+PathFollowingSlidingObserverClassicCinematicLyapunov(
   const double & samplingPeriod,
   const double & wheelBase,
   const MobileBaseInertia & /*inertia*/,
@@ -37,8 +38,9 @@ PathFollowingSlidingObserverCinematicLyapunov(
 }
 
 //-----------------------------------------------------------------------------
-template<typename CommandType> SlidingAngles
-PathFollowingSlidingObserverCinematicLyapunov<CommandType>::computeSlidingAngles(
+template<typename CommandType>
+AxleSteeringSlidings PathFollowingSlidingObserverClassicCinematicLyapunov<CommandType>::
+computeSlidings(
   const PathFrenetPose2D & frenetPose,
   const PathPosture2D & pathPosture,
   const OdometryMeasure & odometryMeasure,
@@ -58,19 +60,20 @@ PathFollowingSlidingObserverCinematicLyapunov<CommandType>::computeSlidingAngles
     observer_.initObserverHandbooks_(x_, y_, course_);
   }
 
-  return {observer_.getFrontSlidingAngle(), observer_.getRearSlidingAngle()};
+  return {0.0, observer_.getFrontSlidingAngle(), observer_.getRearSlidingAngle()};
 }
 
 //-----------------------------------------------------------------------------
 template<typename CommandType>
-void PathFollowingSlidingObserverCinematicLyapunov<CommandType>::reset()
+void PathFollowingSlidingObserverClassicCinematicLyapunov<CommandType>::reset()
 {
   observer_.reset();
 }
 
 //-----------------------------------------------------------------------------
 template<typename CommandType>
-void PathFollowingSlidingObserverCinematicLyapunov<CommandType>::log(SimpleFileLogger & logger)
+void PathFollowingSlidingObserverClassicCinematicLyapunov<CommandType>::log(
+  SimpleFileLogger & logger)
 {
   logger.addEntry("x", x_);
   logger.addEntry("y", y_);
@@ -82,8 +85,8 @@ void PathFollowingSlidingObserverCinematicLyapunov<CommandType>::log(SimpleFileL
   logger.addEntry("BetaFHand", observer_.getFrontSlidingAngle());
 }
 
-template class PathFollowingSlidingObserverCinematicLyapunov<OneAxleSteeringCommand>;
-template class PathFollowingSlidingObserverCinematicLyapunov<TwoAxleSteeringCommand>;
+template class PathFollowingSlidingObserverClassicCinematicLyapunov<OneAxleSteeringCommand>;
+template class PathFollowingSlidingObserverClassicCinematicLyapunov<TwoAxleSteeringCommand>;
 
 }  // namespace core
 }  // namespace romea

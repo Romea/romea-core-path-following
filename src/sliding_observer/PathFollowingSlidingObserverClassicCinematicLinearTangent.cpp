@@ -16,7 +16,8 @@
 // romea
 #include "romea_core_common/math/Algorithm.hpp"
 #include "romea_core_path_following/PathFollowingUtils.hpp"
-#include "romea_core_path_following/observer/PathFollowingSlidingObserverCinematicLinearTangent.hpp"
+#include \
+  "romea_core_path_following/sliding_observer/PathFollowingSlidingObserverClassicCinematicLinearTangent.hpp"
 
 
 namespace romea
@@ -26,8 +27,8 @@ namespace core
 
 //-----------------------------------------------------------------------------
 template<typename CommandType>
-PathFollowingSlidingObserverCinematicLinearTangent<CommandType>::
-PathFollowingSlidingObserverCinematicLinearTangent(
+PathFollowingSlidingObserverClassicCinematicLinearTangent<CommandType>::
+PathFollowingSlidingObserverClassicCinematicLinearTangent(
   const double & samplingPeriod,
   const double & wheelBase,
   const MobileBaseInertia & /*inertia*/,
@@ -37,8 +38,9 @@ PathFollowingSlidingObserverCinematicLinearTangent(
 }
 
 //-----------------------------------------------------------------------------
-template<typename CommandType> SlidingAngles
-PathFollowingSlidingObserverCinematicLinearTangent<CommandType>::computeSlidingAngles(
+template<typename CommandType>
+AxleSteeringSlidings PathFollowingSlidingObserverClassicCinematicLinearTangent<CommandType>::
+computeSlidings(
   const PathFrenetPose2D & frenetPose,
   const PathPosture2D & pathPosture,
   const OdometryMeasure & odometryMeasure,
@@ -58,18 +60,19 @@ PathFollowingSlidingObserverCinematicLinearTangent<CommandType>::computeSlidingA
     observer_.initObserver_(frenetPose.lateralDeviation, frenetPose.courseDeviation);
   }
 
-  return {observer_.getFrontSlidingAngle(), observer_.getRearSlidingAngle()};
+  return {0.0, observer_.getFrontSlidingAngle(), observer_.getRearSlidingAngle()};
 }
 //-----------------------------------------------------------------------------
 template<typename CommandType>
-void PathFollowingSlidingObserverCinematicLinearTangent<CommandType>::reset()
+void PathFollowingSlidingObserverClassicCinematicLinearTangent<CommandType>::reset()
 {
   observer_.reset();
 }
 
 //-----------------------------------------------------------------------------
 template<typename CommandType>
-void PathFollowingSlidingObserverCinematicLinearTangent<CommandType>::log(SimpleFileLogger & logger)
+void PathFollowingSlidingObserverClassicCinematicLinearTangent<CommandType>::log(
+  SimpleFileLogger & logger)
 {
   logger.addEntry("Elat4", observer_.getLateralDeviation());
   logger.addEntry("Ecap4", observer_.getCourseDeviation());
@@ -77,8 +80,8 @@ void PathFollowingSlidingObserverCinematicLinearTangent<CommandType>::log(Simple
   logger.addEntry("BF", observer_.getFrontSlidingAngle());
 }
 
-template class PathFollowingSlidingObserverCinematicLinearTangent<OneAxleSteeringCommand>;
-template class PathFollowingSlidingObserverCinematicLinearTangent<TwoAxleSteeringCommand>;
+template class PathFollowingSlidingObserverClassicCinematicLinearTangent<OneAxleSteeringCommand>;
+template class PathFollowingSlidingObserverClassicCinematicLinearTangent<TwoAxleSteeringCommand>;
 
 }  // namespace core
 }  // namespace romea

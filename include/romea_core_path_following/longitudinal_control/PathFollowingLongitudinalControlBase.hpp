@@ -13,8 +13,8 @@
 // limitations under the License.
 
 
-#ifndef ROMEA_CORE_PATH_FOLLOWING__COMMAND__PATHSECTIONLINEARSPEEDCONTROL_HPP_
-#define ROMEA_CORE_PATH_FOLLOWING__COMMAND__PATHSECTIONLINEARSPEEDCONTROL_HPP_
+#ifndef ROMEA_CORE_PATH_FOLLOWING__LONGITUDINAL_CONTROL__PATHFOLLOWINGLONGITUDINALCONTROLBASE_HPP_
+#define ROMEA_CORE_PATH_FOLLOWING__LONGITUDINAL_CONTROL__PATHFOLLOWINGLONGITUDINALCONTROLBASE_HPP_
 
 // std
 #include <memory>
@@ -32,37 +32,31 @@ namespace romea
 namespace core
 {
 
-struct PathSectionFollowingLongitudinalControlParameters
-{
-  double minimalLinearSpeed;
-};
 
 template<class CommandType>
-class PathSectionFollowingLongitudinalControl
+class PathFollowingLongitudinalControlBase
 {
 public:
-  using Parameters = PathSectionFollowingLongitudinalControlParameters;
+  using Command = CommandType;
   using OdometryMeasure = typename PathFollowingTraits<CommandType>::Measure;
 
 public:
-  explicit PathSectionFollowingLongitudinalControl(const Parameters & parameters);
+  PathFollowingLongitudinalControlBase();
 
-  double computeLinearSpeed(
+  virtual double computeLinearSpeed(
     const PathFollowingSetPoint & setPoint,
     const PathFrenetPose2D & frenetPose,
     const PathPosture2D & pathPosture,
     const OdometryMeasure & odometryMeasure,
-    const Twist2D & filteredTwist);
+    const Twist2D & filteredTwist) = 0;
 
-  void log(SimpleFileLogger & logger);
+  virtual void log(SimpleFileLogger & logger) = 0;
 
-  void reset();
+  virtual void reset() = 0;
 
-protected:
-  double minimalLinearSpeed_;
 };
 
 }  // namespace core
 }  // namespace romea
 
-#endif  // ROMEA_CORE_PATH_FOLLOWING__COMMAND__PATHSECTIONLINEARSPEEDCONTROL_HPP_
+#endif  // ROMEA_CORE_PATH_FOLLOWING__LONGITUDINAL_CONTROL__PATHFOLLOWINGLONGITUDINALCONTROLBASE_HPP_

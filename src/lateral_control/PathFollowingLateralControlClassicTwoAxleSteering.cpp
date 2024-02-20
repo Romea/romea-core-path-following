@@ -15,56 +15,57 @@
 
 // romea
 #include "romea_core_path_following/PathFollowingUtils.hpp"
-#include "romea_core_path_following/command/PathSectionFollowingClassic.hpp"
+#include \
+  "romea_core_path_following/lateral_control/PathFollowingLateralControlClassicTwoAxleSteering.hpp"
 
 namespace romea
 {
 namespace core
 {
 
-
 //-----------------------------------------------------------------------------
-template<class CommandType>
-PathSectionFollowingClassic<CommandType>::PathSectionFollowingClassic(
+PathFollowingLateralControlClassicTwoAxleSteering::PathFollowingLateralControlClassicTwoAxleSteering(
   const double & wheelbase,
   const MobileBaseInertia & /*inertia*/,
-  const LongitudinalControlParameters & longitudinalControlParameters,
-  const LateralControlParameters & lateralControlParameters,
-  const CommandLimits & commandLimits)
-: PathSectionFollowingBase<CommandType>(longitudinalControlParameters, commandLimits),
-  lateralControl_(wheelbase, lateralControlParameters)
+  const Parameters & parameters)
+: gains_(parameters.gains),
+  lateralControl_(wheelbase, {parameters.gains.frontKD, parameters.gains.rearKD})
 {
 }
 
-
 //-----------------------------------------------------------------------------
-template<class CommandType>
-SteeringAngles PathSectionFollowingClassic<CommandType>::computeSteeringAngles_(
+TwoAxleSteeringCommand PathFollowingLateralControlClassicTwoAxleSteering::computeCommand(
   const PathFollowingSetPoint & setPoint,
+  const CommandLimits & commandLimits,
   const PathFrenetPose2D & frenetPose,
   const PathPosture2D & pathPosture,
   const double & /*futurePathCurvature*/,
   const OdometryMeasure & odometryMeasure,
-  const Twist2D & filteredTwist)
+  const AxleSteeringSlidings & slidings)
 {
-  SlidingAngles slidingAngles = this->compute_sliding_angles_(
-    frenetPose, pathPosture, odometryMeasure, filteredTwist);
+  auto gains = gains_.load();
+  lateralControl_.setFrontKP(gains.frontKD);
 
-  return lateralControl_.computeSteeringAngles(
+  auto steeringAngles = lateralControl_.computeSteeringAngles(
     frenetPose.lateralDeviation,
     frenetPose.courseDeviation,
     pathPosture.curvature,
-    slidingAngles.front,
-    slidingAngles.rear,
+    slidings.frontSteeringAngle,
+    slidings.rearSteeringAngle,
     getRearSteeringAngle(odometryMeasure),
-    getMaximalFrontSteeringAngle(this->commandLimits_),
-    getMaximalRearSteeringAngle(this->commandLimits_),
+    getMaximalFrontSteeringAngle(commandLimits),
+    getMaximalRearSteeringAngle(commandLimits),
     setPoint.lateralDeviation,
     setPoint.courseDeviation);
+
+  return TwoAxleSteeringCommand(setPoint.linearSpeed, steeringAngles.front, steeringAngles.rear);
 }
 
-template class PathSectionFollowingClassic<OneAxleSteeringCommand>;
-template class PathSectionFollowingClassic<TwoAxleSteeringCommand>;
+//-----------------------------------------------------------------------------
+void PathFollowingLateralControlClassicTwoAxleSteering::updateGains(const Gains & gains)
+{
+  gains_.store(gains);
+}
 
 }  // namespace core
 }  // namespace romea
