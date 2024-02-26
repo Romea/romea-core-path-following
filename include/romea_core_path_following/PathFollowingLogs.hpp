@@ -18,6 +18,7 @@
 
 #include "romea_core_common/geometry/Twist2D.hpp"
 #include "romea_core_common/log/SimpleFileLogger.hpp"
+#include "romea_core_mobile_base/kinematic/skid_steering/SkidSteeringMeasure.hpp"
 #include "romea_core_mobile_base/kinematic/axle_steering/OneAxleSteeringMeasure.hpp"
 #include "romea_core_mobile_base/kinematic/axle_steering/TwoAxleSteeringMeasure.hpp"
 #include "romea_core_mobile_base/kinematic/omni_steering/OmniSteeringMeasure.hpp"
@@ -30,13 +31,21 @@ namespace romea
 namespace core
 {
 
+void log(SimpleFileLogger & logger, const PathFrenetPose2D & frenetPose);
+
+void log(SimpleFileLogger & logger, const PathPosture2D & pathPosture);
+
 void log(SimpleFileLogger & logger, const PathMatchedPoint2D & parthMatchedPoint);
 
 void log(SimpleFileLogger & logger, const PathFollowingSetPoint & setpoint);
 
+void log(SimpleFileLogger & logger, const SkidSteeringMeasure & odometry_measure);
+
 void log(SimpleFileLogger & logger, const OneAxleSteeringMeasure & odometry_measure);
 
 void log(SimpleFileLogger & logger, const TwoAxleSteeringMeasure & odometry_measure);
+
+void log(SimpleFileLogger & logger, const SkidSteeringCommand & command);
 
 void log(SimpleFileLogger & logger, const OneAxleSteeringCommand & command);
 

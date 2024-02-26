@@ -13,42 +13,50 @@
 // limitations under the License.
 
 
-#ifndef ROMEA_CORE_PATH_FOLLOWING__LONGITUDINAL_CONTROL__PATHFOLLOWINGLONGITUDINALCONTROLBASE_HPP_
-#define ROMEA_CORE_PATH_FOLLOWING__LONGITUDINAL_CONTROL__PATHFOLLOWINGLONGITUDINALCONTROLBASE_HPP_
+#ifndef ROMEA_CORE_PATH_FOLLOWING__LATERAL_CONTROL__PATHFOLLOWINGLATERALCONTROLBASE_HPP_
+#define ROMEA_CORE_PATH_FOLLOWING__LATERAL_CONTROL__PATHFOLLOWINGLATERALCONTROLBASE_HPP_
 
 // std
 #include <memory>
 
 // romea
-#include <romea_core_common/log/SimpleFileLogger.hpp>
-#include <romea_core_common/geometry/Twist2D.hpp>
-#include <romea_core_path/PathFrenetPose2D.hpp>
-#include <romea_core_path/PathPosture2D.hpp>
+#include "romea_core_common/concurrency/SharedVariable.hpp"
+#include "romea_core_common/geometry/Twist2D.hpp"
+#include "romea_core_common/log/SimpleFileLogger.hpp"
+#include "romea_core_mobile_base/info/MobileBaseInertia.hpp"
+#include "romea_core_path/PathFrenetPose2D.hpp"
+#include "romea_core_path/PathPosture2D.hpp"
 #include "romea_core_path_following/PathFollowingLogs.hpp"
 #include "romea_core_path_following/PathFollowingTraits.hpp"
+
 
 namespace romea
 {
 namespace core
 {
 
-
-template<class CommandType>
-class PathFollowingLongitudinalControlBase
+template<typename CommandType, typename SlidingsType>
+class PathFollowingLateralControlBase
 {
 public:
   using Command = CommandType;
+  using Slidings = SlidingsType;
   using OdometryMeasure = typename PathFollowingTraits<CommandType>::Measure;
+  using CommandLimits = typename PathFollowingTraits<CommandType>::Limits;
 
 public:
-  PathFollowingLongitudinalControlBase();
+  PathFollowingLateralControlBase() {}
 
-  virtual double computeLinearSpeed(
+  virtual ~PathFollowingLateralControlBase() = default;
+
+  virtual CommandType computeCommand(
     const PathFollowingSetPoint & setPoint,
+    const CommandLimits & commandLimits,
     const PathFrenetPose2D & frenetPose,
     const PathPosture2D & pathPosture,
+    const double & futurePathCurvature,
     const OdometryMeasure & odometryMeasure,
-    const Twist2D & filteredTwist) = 0;
+    const SlidingsType & slidings = {}) = 0;
 
   virtual void log(SimpleFileLogger & logger) = 0;
 
@@ -59,4 +67,4 @@ public:
 }  // namespace core
 }  // namespace romea
 
-#endif  // ROMEA_CORE_PATH_FOLLOWING__LONGITUDINAL_CONTROL__PATHFOLLOWINGLONGITUDINALCONTROLBASE_HPP_
+#endif  // ROMEA_CORE_PATH_FOLLOWING__LATERAL_CONTROL__PATHFOLLOWINGLATERALCONTROLBASE_HPP_

@@ -44,6 +44,12 @@ double getRearSteeringAngle(const OneAxleSteeringCommand & /*command*/)
 }
 
 //-----------------------------------------------------------------------------
+double getMaximalAngularSpeed(const SkidSteeringCommandLimits & limits)
+{
+  return limits.angularSpeed.upper();
+}
+
+//-----------------------------------------------------------------------------
 double getMaximalFrontSteeringAngle(const TwoAxleSteeringCommandLimits & limits)
 {
   return limits.frontSteeringAngle.upper();

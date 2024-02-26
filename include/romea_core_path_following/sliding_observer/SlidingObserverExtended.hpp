@@ -13,18 +13,18 @@
 // limitations under the License.
 
 
-#ifndef ROMEA_CORE_PATH_FOLLOWING__OBSERVER__PATHFOLLOWINGSLIDINGCLASSIC_HPP_
-#define ROMEA_CORE_PATH_FOLLOWING__OBSERVER__PATHFOLLOWINGSLIDINGCLASSIC_HPP_
+#ifndef ROMEA_CORE_PATH_FOLLOWING__SLIDING_OBSERVER__SLIDINGOBSERVEREXTENDED_HPP_
+#define ROMEA_CORE_PATH_FOLLOWING__SLIDING_OBSERVER__SLIDINGOBSERVEREXTENDED_HPP_
 
 // romea
-#include <romea_core_path_following/sliding_observer/PathFollowingSlidingObserverBase.hpp>
+#include <romea_core_path_following/sliding_observer/SlidingObserverBase.hpp>
 
 namespace romea
 {
 namespace core
 {
 
-struct AxleSteeringSlidings
+struct ExtendedSlidings
 {
   double longitudinalSpeed;
   double frontSteeringAngle;
@@ -32,11 +32,11 @@ struct AxleSteeringSlidings
 };
 
 template<typename CommandType>
-using PathFollowingSlidingObserverClassic =
-  PathFollowingSlidingObserverBase<CommandType, AxleSteeringSlidings>;
+using PathFollowingSlidingObserverExtended =
+  PathFollowingSlidingObserverBase<CommandType, ExtendedSlidings>;
 
 
 }  // namespace core
 }  // namespace romea
 
-#endif  // ROMEA_CORE_PATH_FOLLOWING__OBSERVER__PATHFOLLOWINGSLIDINGOBSERVERCLASSIC_HPP_
+#endif  // ROMEA_CORE_PATH_FOLLOWING__SLIDING_OBSERVER__SLIDINGOBSERVEREXTENDED_HPP_

@@ -20,7 +20,7 @@
 #include <limits>
 
 // romea
-#include <romea_core_path/PathMatchedPoint2D.hpp>
+#include "romea_core_path/PathMatchedPoint2D.hpp"
 
 namespace romea
 {

@@ -13,12 +13,13 @@
 // limitations under the License.
 
 
-#ifndef ROMEA_CORE_PATH_FOLLOWING__OBSERVER__PATHFOLLOWINGSLIDINGOBSERVERCINEMATICLINEARTANGENT_HPP_
-#define ROMEA_CORE_PATH_FOLLOWING__OBSERVER__PATHFOLLOWINGSLIDINGOBSERVERCINEMATICLINEARTANGENT_HPP_
+#ifndef ROMEA_CORE_PATH_FOLLOWING__SLIDING_OBSERVER__SLIDINGOBSERVEREXTENDEDCINEMATICLYAPUNOV_HPP_
+#define ROMEA_CORE_PATH_FOLLOWING__SLIDING_OBSERVER__SLIDINGOBSERVEREXTENDEDCINEMATICLYAPUNOV_HPP_
+
 
 // romea
-#include "romea_core_control/observer/SlidingObserverCinematicLinearTangent.hpp"
-#include "romea_core_path_following/sliding_observer/PathFollowingSlidingObserverClassic.hpp"
+#include "romea_core_control/observer/SlidingObserverCinematicLyapunov.hpp"
+#include "romea_core_path_following/sliding_observer/SlidingObserverExtended.hpp"
 
 namespace romea
 {
@@ -26,22 +27,22 @@ namespace core
 {
 
 template<typename CommandType>
-class PathFollowingSlidingObserverClassicCinematicLinearTangent
-  : public PathFollowingSlidingObserverClassic<CommandType>
+class PathFollowingSlidingObserverExtendedCinematicLyapunov
+  : public PathFollowingSlidingObserverExtended<CommandType>
 {
 public:
   using OdometryMeasure = typename PathFollowingTraits<CommandType>::Measure;
-  using Observer = SlidingObserverCinematicLinearTangent;
-  using ObserverParameters = Observer::Parameters;
+  using Observer = SlidingObserverCinematicLyapunov;
+  using Parameters = Observer::Parameters;
 
 public:
-  PathFollowingSlidingObserverClassicCinematicLinearTangent(
+  PathFollowingSlidingObserverExtendedCinematicLyapunov(
     const double & samplingPeriod,
     const double & wheelBase,
     const MobileBaseInertia & inertia,
-    const ObserverParameters & parameters);
+    const Parameters & parameters);
 
-  AxleSteeringSlidings computeSlidings(
+  ExtendedSlidings computeSlidings(
     const PathFrenetPose2D & frenetPose,
     const PathPosture2D & pathPosture,
     const OdometryMeasure & odometryMeasure,
@@ -52,10 +53,13 @@ public:
   void reset() override;
 
 private:
+  double x_;
+  double y_;
+  double course_;
   Observer observer_;
 };
 
 }  // namespace core
 }  // namespace romea
 
-#endif  // ROMEA_CORE_PATH_FOLLOWING__OBSERVER__PATHFOLLOWINGSLIDINGOBSERVERCINEMATICLINEARTANGENT_HPP_
+#endif  // ROMEA_CORE_PATH_FOLLOWING__SLIDING_OBSERVER__PATHFOLLOWINGSLIDINGOBSERVERCLASSICCINEMATICLYAPUNOV_HPP_

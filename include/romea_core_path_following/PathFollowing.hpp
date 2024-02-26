@@ -19,9 +19,17 @@
 // std
 #include <memory>
 #include <utility>
+#include <vector>
 
 // romea
+#include "romea_core_common/geometry/Twist2D.hpp"
+#include "romea_core_common/log/SimpleFileLogger.hpp"
+#include "romea_core_path/PathFrenetPose2D.hpp"
+#include "romea_core_path/PathPosture2D.hpp"
+#include "romea_core_path_following/PathFollowingLogs.hpp"
 #include "romea_core_path_following/PathFollowingTraits.hpp"
+#include "romea_core_path_following/PathFollowingSetPoint.hpp"
+
 
 namespace romea
 {
@@ -35,13 +43,14 @@ public:
   using OdometryMeasure = typename PathFollowingTraits<CommandType>::Measure;
   using CommandLimits = typename PathFollowingTraits<CommandType>::Limits;
 
-  PathFollowingBase();
+  PathFollowingBase() {}
 
   virtual ~PathFollowingBase() = default;
 
   virtual CommandType computeCommand(
     const PathFollowingSetPoint & userSetPoint,
-    const std::vector<PathMatchedPoint2D> & matchedPoints,
+    const CommandLimits & commandLimits,
+    const PathMatchedPoint2D & matchedPoint,
     const OdometryMeasure & odometryMeasure,
     const Twist2D & filteredTwist)
   {
@@ -50,6 +59,7 @@ public:
     if (setPoint.lateralDeviation >= 0) {
       return computeCommand_(
         setPoint,
+        commandLimits,
         matchedPoint.frenetPose,
         matchedPoint.pathPosture,
         matchedPoint.futureCurvature,
@@ -58,6 +68,7 @@ public:
     } else {
       return computeCommand_(
         setPoint,
+        commandLimits,
         reverse(matchedPoint.frenetPose),
         reverse(matchedPoint.pathPosture),
         -matchedPoint.futureCurvature,
@@ -66,51 +77,58 @@ public:
     }
   }
 
-  virtual virtual void reset() = 0;
+  virtual void reset() = 0;
 
 protected:
   virtual CommandType computeCommand_(
     const PathFollowingSetPoint & setPoint,
+    const CommandLimits & commandLimits,
     const PathFrenetPose2D & frenetPose,
     const PathPosture2D & pathPosture,
     const double & futurePathCurvature,
     const OdometryMeasure & odometryMeasure,
     const Twist2D & filteredTwist) = 0;
-
 };
 
 template<typename LateralControl, typename LongitudinalControl>
-class PathFollowingWithoutSlidingObserver : public PathFollowingBase<LateralControl::Command>
+class PathFollowingWithoutSlidingObserver : public PathFollowingBase<typename LateralControl::Command>
 {
-  PathFollowing(
-    CommandLimits commandLimits_,
+public:
+  using CommandType = typename LateralControl::Command;
+  using OdometryMeasure = typename PathFollowingTraits<CommandType>::Measure;
+  using CommandLimits = typename PathFollowingTraits<CommandType>::Limits;
+
+public:
+  PathFollowingWithoutSlidingObserver(
     std::shared_ptr<LateralControl> lateralControl,
     std::shared_ptr<LongitudinalControl> longitudinalControl,
     std::shared_ptr<SimpleFileLogger> logger)
-    : commandLimits_(commandLimits_),
-    lateralControl(std::move(lateralControl)),
-    longitudinalControl(std::move(longitudinalControl)),
-    logger(logger_),
+  : lateralControl_(lateralControl),
+    longitudinalControl_(longitudinalControl),
+    logger_(logger)
   {
   }
 
   CommandType computeCommand_(
     const PathFollowingSetPoint & setPoint,
+    const CommandLimits & commandLimits,
     const PathFrenetPose2D & frenetPose,
     const PathPosture2D & pathPosture,
-    const double & futurePathCurvature,
+    const double & futureCurvature,
     const OdometryMeasure & odometryMeasure,
     const Twist2D & filteredTwist)
   {
     auto command = lateralControl_->computeCommand(
-      setPoint, frenetPose, pathPosture, futureCurvature, odometryMeasure, filteredTwist);
+      setPoint, commandLimits, frenetPose, pathPosture, futureCurvature, odometryMeasure);
 
     command.longitudinalSpeed = longitudinalControl_->computeLinearSpeed(
       setPoint, frenetPose, pathPosture, odometryMeasure, filteredTwist);
 
     if (logger_ != nullptr) {
-      log(*logger_, userSetPoint);
-      log(*logger_, matchedPoint);
+      log(*logger_, setPoint);
+      log(*logger_, frenetPose);
+      log(*logger_, pathPosture);
+      logger_->addEntry("path_future_curvature", futureCurvature);
       log(*logger_, odometryMeasure);
       log(*logger_, filteredTwist);
       lateralControl_->log(*logger_);
@@ -127,60 +145,70 @@ class PathFollowingWithoutSlidingObserver : public PathFollowingBase<LateralCont
     longitudinalControl_->reset();
   }
 
-
-  CommandLimits commandLimits_;
   std::shared_ptr<LateralControl> lateralControl_;
   std::shared_ptr<LongitudinalControl> longitudinalControl_;
   std::shared_ptr<SimpleFileLogger> logger_;
 };
 
 template<typename LateralControl, typename LongitudinalControl, typename SlidingObserver>
-class PathFollowingWithSlidingObserver : public PathFollowingBase<LateralControl::Command>
+class PathFollowingWithSlidingObserver : public PathFollowingBase<typename LateralControl::Command>
 {
-  PathFollowing(
-    CommandLimits commandLimits_,
+public:
+  using CommandType = typename LateralControl::Command;
+  using OdometryMeasure = typename PathFollowingTraits<CommandType>::Measure;
+  using CommandLimits = typename PathFollowingTraits<CommandType>::Limits;
+  using LateralControlSlidings = typename LateralControl::Slidings;
+  using ObserverSlidings = typename SlidingObserver::Slidings;
+
+public:
+  PathFollowingWithSlidingObserver(
     std::shared_ptr<LateralControl> lateralControl,
     std::shared_ptr<LongitudinalControl> longitudinalControl,
     std::shared_ptr<SlidingObserver> slidingObserver,
     std::shared_ptr<SimpleFileLogger> logger)
-    : commandLimits_(commandLimits_),
-    lateralControl(std::move(lateralControl)),
-    longitudinalControl(std::move(longitudinalControl)),
-    slidingObserver_(std::move(slidingObserver)),
-    logger(logger_),
+  : lateralControl_(lateralControl),
+    longitudinalControl_(longitudinalControl),
+    slidingObserver_(slidingObserver),
+    logger_(logger)
   {
   }
 
   CommandType computeCommand_(
     const PathFollowingSetPoint & setPoint,
+    const CommandLimits & commandLimits,
     const PathFrenetPose2D & frenetPose,
     const PathPosture2D & pathPosture,
-    const double & futurePathCurvature,
+    const double & futureCurvature,
     const OdometryMeasure & odometryMeasure,
     const Twist2D & filteredTwist)
   {
 
-    if constexpr (std::is_same_v<LateralControl::Slidings, SlidingObserver::Slidings>) {
-      auto slidings = slidingObserver_->computeSlidings(
-        frenetPose, pathPosture, odometryMeasure, filteredTwist)
+    LateralControlSlidings slidings;
+    if constexpr (std::is_same_v<LateralControlSlidings, ObserverSlidings>) {
+      slidings = slidingObserver_->computeSlidings(
+        frenetPose, pathPosture, odometryMeasure, filteredTwist);
     } else {
+      // convert slidings
     }
 
     auto command = lateralControl_->computeCommand(
-      setPoint, frenetPose, pathPosture, futureCurvature, odometryMeasure, filteredTwist, slidings);
+      setPoint, commandLimits, frenetPose, pathPosture,
+      futureCurvature, odometryMeasure, slidings);
 
     command.longitudinalSpeed = longitudinalControl_->computeLinearSpeed(
       setPoint, frenetPose, pathPosture, odometryMeasure, filteredTwist);
 
 
     if (logger_ != nullptr) {
-      log(*logger_, userSetPoint);
-      log(*logger_, matchedPoint);
+      log(*logger_, setPoint);
+      log(*logger_, frenetPose);
+      log(*logger_, pathPosture);
+      logger_->addEntry("path_future_curvature", futureCurvature);
       log(*logger_, odometryMeasure);
       log(*logger_, filteredTwist);
       lateralControl_->log(*logger_);
       longitudinalControl_->log(*logger_);
-      slidingObserver_->log(logger_);
+      slidingObserver_->log(*logger_);
       log(*logger_, command);
     }
 
@@ -195,7 +223,6 @@ class PathFollowingWithSlidingObserver : public PathFollowingBase<LateralControl
   }
 
 private:
-  CommandLimits commandLimits_;
   std::shared_ptr<LateralControl> lateralControl_;
   std::shared_ptr<LongitudinalControl> longitudinalControl_;
   std::shared_ptr<SlidingObserver> slidingObserver_;

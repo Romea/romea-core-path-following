@@ -13,35 +13,37 @@
 // limitations under the License.
 
 
-#ifndef ROMEA_CORE_PATH_FOLLOWING__OBSERVER__PATHFOLLOWINGSLIDINGOBSERVERBASE_HPP_
-#define ROMEA_CORE_PATH_FOLLOWING__OBSERVER__PATHFOLLOWINGSLIDINGOBSERVERBASE_HPP_
+#ifndef ROMEA_CORE_PATH_FOLLOWING__LONGITUDINAL_CONTROL__PATHFOLLOWINGLONGITUDINALCONTROLBASE_HPP_
+#define ROMEA_CORE_PATH_FOLLOWING__LONGITUDINAL_CONTROL__PATHFOLLOWINGLONGITUDINALCONTROLBASE_HPP_
+
+// std
+#include <memory>
 
 // romea
-#include <romea_core_common/log/SimpleFileLogger.hpp>
-#include <romea_core_common/geometry/Twist2D.hpp>
-#include <romea_core_control/FrontRearData.hpp>
-#include <romea_core_mobile_base/info/MobileBaseInertia.hpp>
-#include <romea_core_path/PathMatchedPoint2D.hpp>
-#include <romea_core_path_following/PathFollowingTraits.hpp>
+#include "romea_core_common/log/SimpleFileLogger.hpp"
+#include "romea_core_common/geometry/Twist2D.hpp"
+#include "romea_core_path/PathFrenetPose2D.hpp"
+#include "romea_core_path/PathPosture2D.hpp"
+#include "romea_core_path_following/PathFollowingLogs.hpp"
+#include "romea_core_path_following/PathFollowingTraits.hpp"
 
 namespace romea
 {
 namespace core
 {
 
-template<typename CommandType, typename SlidingsType>
-class PathFollowingSlidingObserverBase
+template<class CommandType>
+class PathFollowingLongitudinalControlBase
 {
 public:
-  using Slidings = SlidingsType;
+  using Command = CommandType;
   using OdometryMeasure = typename PathFollowingTraits<CommandType>::Measure;
 
 public:
-  PathFollowingSlidingObserverBase() {}
+  PathFollowingLongitudinalControlBase() {}
 
-  virtual ~PathFollowingSlidingObserverBase() = default;
-
-  virtual SlidingsType computeSlidings(
+  virtual double computeLinearSpeed(
+    const PathFollowingSetPoint & setPoint,
     const PathFrenetPose2D & frenetPose,
     const PathPosture2D & pathPosture,
     const OdometryMeasure & odometryMeasure,
@@ -50,9 +52,10 @@ public:
   virtual void log(SimpleFileLogger & logger) = 0;
 
   virtual void reset() = 0;
+
 };
 
 }  // namespace core
 }  // namespace romea
 
-#endif  // ROMEA_CORE_PATH_FOLLOWING__OBSERVER__PATHFOLLOWINGSLIDINGOBSERVERBASE_HPP_
+#endif  // ROMEA_CORE_PATH_FOLLOWING__LONGITUDINAL_CONTROL__PATHFOLLOWINGLONGITUDINALCONTROLBASE_HPP_
