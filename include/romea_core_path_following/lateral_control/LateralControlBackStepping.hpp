@@ -43,7 +43,6 @@ public:
     double KP;
     double KI;
     double KD;
-
   };
 
   struct Parameters
@@ -174,4 +173,4 @@ private:
 }  // namespace core
 }  // namespace romea
 
-#endif  // ROMEA_CORE_PATH_FOLLOWING__LATERAL_CONTROL__PATHFOLLOWINGLATERALCONTROLCLASSICONEAXLESTEERING_HPP_
+#endif  // ROMEA_CORE_PATH_FOLLOWING__LATERAL_CONTROL__LATERALCONTROLBACKSTEPPING_HPP_

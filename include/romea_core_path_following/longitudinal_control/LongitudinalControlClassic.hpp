@@ -80,9 +80,7 @@ public:
   void log(SimpleFileLogger & logger)override;
 
   void reset()override;
-
 };
-
 
 template<>
 class PathFollowingLongitudinalControlClassic<TwoAxleSteeringCommand>
@@ -106,7 +104,6 @@ public:
   void log(SimpleFileLogger & logger)override;
 
   void reset()override;
-
 };
 
 

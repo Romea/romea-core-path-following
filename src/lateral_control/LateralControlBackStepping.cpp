@@ -53,7 +53,6 @@ PathFollowingLateralControlBackStepping<SkidSteeringCommand>::computeCommand(
   const OdometryMeasure & odometryMeasure,
   const WildcardSlidings & /*slidings*/)
 {
-
   double angular_speed = lateralControl_.computeAngularSpeed(
     frenetPose.lateralDeviation,
     frenetPose.courseDeviation,
@@ -121,7 +120,8 @@ void PathFollowingLateralControlBackStepping<SkidSteeringCommand>::reset()
 // }
 
 // //-----------------------------------------------------------------------------
-// void PathFollowingLateralControlClassic<OneAxleSteeringCommand>::log(SimpleFileLogger & /*logger*/)
+// void PathFollowingLateralControlClassic<OneAxleSteeringCommand>::
+// log(SimpleFileLogger & /*logger*/)
 // {
 // }
 
@@ -166,17 +166,19 @@ void PathFollowingLateralControlBackStepping<SkidSteeringCommand>::reset()
 //     setPoint.lateralDeviation,
 //     setPoint.courseDeviation);
 
-//   return TwoAxleSteeringCommand(setPoint.linearSpeed, steeringAngles.front, steeringAngles.rear);
+//  return TwoAxleSteeringCommand(setPoint.linearSpeed,steeringAngles.front, steeringAngles.rear);
 // }
 
 // //-----------------------------------------------------------------------------
-// void PathFollowingLateralControlClassic<TwoAxleSteeringCommand>::updateGains(const Gains & gains)
+// void PathFollowingLateralControlClassic<TwoAxleSteeringCommand>::
+// updateGains(const Gains & gains)
 // {
 //   gains_.store(gains);
 // }
 
 // //-----------------------------------------------------------------------------
-// void PathFollowingLateralControlClassic<TwoAxleSteeringCommand>::log(SimpleFileLogger & /*logger*/)
+// void PathFollowingLateralControlClassic<TwoAxleSteeringCommand>::
+// log(SimpleFileLogger & /*logger*/)
 // {
 // }
 

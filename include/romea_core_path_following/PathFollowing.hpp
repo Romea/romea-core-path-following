@@ -91,7 +91,8 @@ protected:
 };
 
 template<typename LateralControl, typename LongitudinalControl>
-class PathFollowingWithoutSlidingObserver : public PathFollowingBase<typename LateralControl::Command>
+class PathFollowingWithoutSlidingObserver
+  : public PathFollowingBase<typename LateralControl::Command>
 {
 public:
   using CommandType = typename LateralControl::Command;
@@ -151,7 +152,8 @@ public:
 };
 
 template<typename LateralControl, typename LongitudinalControl, typename SlidingObserver>
-class PathFollowingWithSlidingObserver : public PathFollowingBase<typename LateralControl::Command>
+class PathFollowingWithSlidingObserver
+  : public PathFollowingBase<typename LateralControl::Command>
 {
 public:
   using CommandType = typename LateralControl::Command;

@@ -71,7 +71,8 @@ OneAxleSteeringCommand PathFollowingLateralControlPredictive<OneAxleSteeringComm
 }
 
 //-----------------------------------------------------------------------------
-void PathFollowingLateralControlPredictive<OneAxleSteeringCommand>::updateGains(const Gains & gains)
+void PathFollowingLateralControlPredictive<OneAxleSteeringCommand>::updateGains(
+  const Gains & gains)
 {
   gains_.store(gains);
 }

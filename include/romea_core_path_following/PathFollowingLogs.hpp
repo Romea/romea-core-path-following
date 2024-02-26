@@ -18,7 +18,6 @@
 
 #include "romea_core_common/geometry/Twist2D.hpp"
 #include "romea_core_common/log/SimpleFileLogger.hpp"
-#include "romea_core_mobile_base/kinematic/skid_steering/SkidSteeringMeasure.hpp"
 #include "romea_core_mobile_base/kinematic/axle_steering/OneAxleSteeringMeasure.hpp"
 #include "romea_core_mobile_base/kinematic/axle_steering/TwoAxleSteeringMeasure.hpp"
 #include "romea_core_mobile_base/kinematic/omni_steering/OmniSteeringMeasure.hpp"
