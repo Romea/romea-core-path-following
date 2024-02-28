@@ -43,9 +43,15 @@ public:
   using OdometryMeasure = typename PathFollowingTraits<CommandType>::Measure;
   using CommandLimits = typename PathFollowingTraits<CommandType>::Limits;
 
-  PathFollowingBase() {}
+  PathFollowingBase()
+  : logger_(nullptr) {}
 
   virtual ~PathFollowingBase() = default;
+
+  virtual void registerLogger(std::shared_ptr<core::SimpleFileLogger> logger)
+  {
+    logger_ = logger;
+  }
 
   virtual CommandType computeCommand(
     const PathFollowingSetPoint & userSetPoint,
@@ -88,6 +94,9 @@ protected:
     const double & futurePathCurvature,
     const OdometryMeasure & odometryMeasure,
     const Twist2D & filteredTwist) = 0;
+
+protected:
+  std::shared_ptr<core::SimpleFileLogger> logger_;
 };
 
 template<typename LateralControl, typename LongitudinalControl>
@@ -102,11 +111,9 @@ public:
 public:
   PathFollowingWithoutSlidingObserver(
     std::shared_ptr<LateralControl> lateralControl,
-    std::shared_ptr<LongitudinalControl> longitudinalControl,
-    std::shared_ptr<SimpleFileLogger> logger)
+    std::shared_ptr<LongitudinalControl> longitudinalControl)
   : lateralControl_(lateralControl),
-    longitudinalControl_(longitudinalControl),
-    logger_(logger)
+    longitudinalControl_(longitudinalControl)
   {
   }
 
@@ -119,22 +126,22 @@ public:
     const OdometryMeasure & odometryMeasure,
     const Twist2D & filteredTwist)
   {
-    auto command = lateralControl_->computeCommand(
+    auto command = this->lateralControl_->computeCommand(
       setPoint, commandLimits, frenetPose, pathPosture, futureCurvature, odometryMeasure);
 
-    command.longitudinalSpeed = longitudinalControl_->computeLinearSpeed(
+    command.longitudinalSpeed = this->longitudinalControl_->computeLinearSpeed(
       setPoint, frenetPose, pathPosture, odometryMeasure, filteredTwist);
 
-    if (logger_ != nullptr) {
-      log(*logger_, setPoint);
-      log(*logger_, frenetPose);
-      log(*logger_, pathPosture);
-      logger_->addEntry("path_future_curvature", futureCurvature);
-      log(*logger_, odometryMeasure);
-      log(*logger_, filteredTwist);
-      lateralControl_->log(*logger_);
-      longitudinalControl_->log(*logger_);
-      log(*logger_, command);
+    if (this->logger_ != nullptr) {
+      log(*this->logger_, setPoint);
+      log(*this->logger_, frenetPose);
+      log(*this->logger_, pathPosture);
+      this->logger_->addEntry("path_future_curvature", futureCurvature);
+      log(*this->logger_, odometryMeasure);
+      log(*this->logger_, filteredTwist);
+      lateralControl_->log(*this->logger_);
+      longitudinalControl_->log(*this->logger_);
+      log(*this->logger_, command);
     }
 
     return command;
@@ -148,7 +155,6 @@ public:
 
   std::shared_ptr<LateralControl> lateralControl_;
   std::shared_ptr<LongitudinalControl> longitudinalControl_;
-  std::shared_ptr<SimpleFileLogger> logger_;
 };
 
 template<typename LateralControl, typename LongitudinalControl, typename SlidingObserver>
@@ -166,12 +172,10 @@ public:
   PathFollowingWithSlidingObserver(
     std::shared_ptr<LateralControl> lateralControl,
     std::shared_ptr<LongitudinalControl> longitudinalControl,
-    std::shared_ptr<SlidingObserver> slidingObserver,
-    std::shared_ptr<SimpleFileLogger> logger)
+    std::shared_ptr<SlidingObserver> slidingObserver)
   : lateralControl_(lateralControl),
     longitudinalControl_(longitudinalControl),
-    slidingObserver_(slidingObserver),
-    logger_(logger)
+    slidingObserver_(slidingObserver)
   {
   }
 
@@ -193,25 +197,25 @@ public:
       // convert slidings
     }
 
-    auto command = lateralControl_->computeCommand(
+    auto command = this->lateralControl_->computeCommand(
       setPoint, commandLimits, frenetPose, pathPosture,
       futureCurvature, odometryMeasure, slidings);
 
-    command.longitudinalSpeed = longitudinalControl_->computeLinearSpeed(
+    command.longitudinalSpeed = this->longitudinalControl_->computeLinearSpeed(
       setPoint, frenetPose, pathPosture, odometryMeasure, filteredTwist);
 
 
-    if (logger_ != nullptr) {
-      log(*logger_, setPoint);
-      log(*logger_, frenetPose);
-      log(*logger_, pathPosture);
-      logger_->addEntry("path_future_curvature", futureCurvature);
-      log(*logger_, odometryMeasure);
-      log(*logger_, filteredTwist);
-      lateralControl_->log(*logger_);
-      longitudinalControl_->log(*logger_);
-      slidingObserver_->log(*logger_);
-      log(*logger_, command);
+    if (this->logger_ != nullptr) {
+      log(*this->logger_, setPoint);
+      log(*this->logger_, frenetPose);
+      log(*this->logger_, pathPosture);
+      this->logger_->addEntry("path_future_curvature", futureCurvature);
+      log(*this->logger_, odometryMeasure);
+      log(*this->logger_, filteredTwist);
+      lateralControl_->log(*this->logger_);
+      longitudinalControl_->log(*this->logger_);
+      slidingObserver_->log(*this->logger_);
+      log(*this->logger_, command);
     }
 
     return command;
@@ -228,7 +232,6 @@ private:
   std::shared_ptr<LateralControl> lateralControl_;
   std::shared_ptr<LongitudinalControl> longitudinalControl_;
   std::shared_ptr<SlidingObserver> slidingObserver_;
-  std::shared_ptr<SimpleFileLogger> logger_;
 };
 
 
