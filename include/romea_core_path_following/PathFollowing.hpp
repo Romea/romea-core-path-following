@@ -63,7 +63,7 @@ public:
     PathFollowingSetPoint setPoint = evaluateSetPoint(userSetPoint, matchedPoint);
 
     if (setPoint.lateralDeviation >= 0) {
-      return computeCommand_(
+      return computeCommand(
         setPoint,
         commandLimits,
         matchedPoint.frenetPose,
@@ -72,7 +72,7 @@ public:
         odometryMeasure,
         filteredTwist);
     } else {
-      return computeCommand_(
+      return computeCommand(
         setPoint,
         commandLimits,
         reverse(matchedPoint.frenetPose),
@@ -85,8 +85,7 @@ public:
 
   virtual void reset() = 0;
 
-protected:
-  virtual CommandType computeCommand_(
+  virtual CommandType computeCommand(
     const PathFollowingSetPoint & setPoint,
     const CommandLimits & commandLimits,
     const PathFrenetPose2D & frenetPose,
@@ -117,7 +116,7 @@ public:
   {
   }
 
-  CommandType computeCommand_(
+  CommandType computeCommand(
     const PathFollowingSetPoint & setPoint,
     const CommandLimits & commandLimits,
     const PathFrenetPose2D & frenetPose,
@@ -179,7 +178,7 @@ public:
   {
   }
 
-  CommandType computeCommand_(
+  CommandType computeCommand(
     const PathFollowingSetPoint & setPoint,
     const CommandLimits & commandLimits,
     const PathFrenetPose2D & frenetPose,
@@ -188,7 +187,6 @@ public:
     const OdometryMeasure & odometryMeasure,
     const Twist2D & filteredTwist)
   {
-
     LateralControlSlidings slidings;
     if constexpr (std::is_same_v<LateralControlSlidings, ObserverSlidings>) {
       slidings = slidingObserver_->computeSlidings(
@@ -235,7 +233,62 @@ private:
 };
 
 
-}  // namespace core
+class OneAxleSteeringEquivalence
+  : public PathFollowingBase<SkidSteeringCommand>
+{
+
+public:
+  OneAxleSteeringEquivalence(
+    std::unique_ptr<PathFollowingBase<OneAxleSteeringCommand>> pathFollowing)
+  : pathFollowing_(std::move(pathFollowing))
+  {
+  }
+
+  SkidSteeringCommand computeCommand(
+    const PathFollowingSetPoint & setPoint,
+    const SkidSteeringCommandLimits & commandLimits,
+    const PathFrenetPose2D & frenetPose,
+    const PathPosture2D & pathPosture,
+    const double & futureCurvature,
+    const SkidSteeringMeasure & odometryMeasure,
+    const Twist2D & filteredTwist) override
+  {
+    OneAxleSteeringMeasure equivalentOdometryMeasure;
+    equivalentOdometryMeasure.longitudinalSpeed = odometryMeasure.longitudinalSpeed;
+    if (std::abs(odometryMeasure.longitudinalSpeed) > 0.01) {
+      equivalentOdometryMeasure.steeringAngle = std::atan(
+        wheelbase_ * odometryMeasure.angularSpeed / odometryMeasure.longitudinalSpeed);
+    } else {
+      equivalentOdometryMeasure.steeringAngle = 0;
+    }
+
+    OneAxleSteeringCommandLimits equivalentCommandLimits;
+    equivalentCommandLimits.longitudinalSpeed = commandLimits.longitudinalSpeed;
+
+    OneAxleSteeringCommand equivalentCommand = pathFollowing_->computeCommand(
+      setPoint, equivalentCommandLimits,
+      frenetPose, pathPosture, futureCurvature,
+      equivalentOdometryMeasure, filteredTwist);
+
+    SkidSteeringCommand command;
+    command.longitudinalSpeed = equivalentCommand.longitudinalSpeed;
+    command.angularSpeed = equivalentCommand.longitudinalSpeed *
+      std::atan(equivalentCommand.steeringAngle) / wheelbase_;
+
+    return command;
+  }
+
+  void reset() override
+  {
+    pathFollowing_->reset();
+  }
+
+  const double wheelbase_ = 1.2;
+  std::unique_ptr<PathFollowingBase<OneAxleSteeringCommand>> pathFollowing_;
+};
+
+
+}   // namespace core
 }  // namespace romea
 
 #endif  // ROMEA_CORE_PATH_FOLLOWING__PATHFOLLOWING_HPP_

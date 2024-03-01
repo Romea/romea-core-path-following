@@ -35,9 +35,9 @@ PathFollowingLateralControlBackStepping(
     {parameters.gains.KP,
       parameters.gains.KI,
       parameters.gains.KD,
+      parameters.gains.IClamp,
       0,
-      parameters.maximalOmegaD,
-      parameters.maximalOmegaDIntegral})
+      parameters.maximalOmegaD})
 {
 }
 

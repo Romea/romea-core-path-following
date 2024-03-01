@@ -83,7 +83,7 @@ void log(SimpleFileLogger & logger, const TwoAxleSteeringMeasure & odometry_meas
 {
   logger.addEntry("odometry_longitudinal_speed", odometry_measure.longitudinalSpeed);
   logger.addEntry("odometry_front_steering_angle", getFrontSteeringAngle(odometry_measure));
-  logger.addEntry("odometry_rear_steering_angle", getFrontSteeringAngle(odometry_measure));
+  logger.addEntry("odometry_rear_steering_angle", getRearSteeringAngle(odometry_measure));
 }
 
 //-----------------------------------------------------------------------------
@@ -106,7 +106,7 @@ void log(SimpleFileLogger & logger, const TwoAxleSteeringCommand & command)
 {
   logger.addEntry("command_linear_speed_command", command.longitudinalSpeed);
   logger.addEntry("command_front_steering_angle", getFrontSteeringAngle(command));
-  logger.addEntry("command_rear_steering_angle", getFrontSteeringAngle(command));
+  logger.addEntry("command_rear_steering_angle", getRearSteeringAngle(command));
 }
 
 }  // namespace core

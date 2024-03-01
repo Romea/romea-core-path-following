@@ -43,13 +43,13 @@ public:
     double KP;
     double KI;
     double KD;
+    double IClamp;
   };
 
   struct Parameters
   {
     Gains gains;
     double maximalOmegaD;
-    double maximalOmegaDIntegral;
   };
 
 public:
