@@ -15,6 +15,13 @@
 #ifndef ROMEA_CORE_PATH_FOLLOWING__PATHFOLLOWINGFSM_HPP_
 #define ROMEA_CORE_PATH_FOLLOWING__PATHFOLLOWINGFSM_HPP_
 
+// std
+#include <optional>
+#include <vector>
+
+// romea
+#include "romea_core_path/PathMatchedPoint2D.hpp"
+#include "romea_core_path_following/PathFollowingTraits.hpp"
 
 namespace romea
 {
@@ -23,13 +30,45 @@ namespace core
 
 enum class PathFollowingFSMStatus
 {
-  FOLLOW_SECTION,
-  DECELERATE_BEFORE_CHANGING_DIRECTION,
+  INIT,
+  FOLLOW,
+  STOP,
   CHANGE_DIRECTION,
-  ACCELERATE_AFTER_CHANGING_DIRECTION
+  FINISH,
+  FAILED
 };
 
-}  // namespace core
+template<typename CommandType>
+class PathFollowingFSM
+{
+public:
+  using FeedbackType = typename PathFollowingTraits<CommandType>::Measure;
+
+public:
+  PathFollowingFSM();
+
+  void updateMatchedPoints(const std::vector<PathMatchedPoint2D> & matchedPoints);
+  void updateOdometry(const CommandType & command, const FeedbackType & odometry);
+  const PathFollowingFSMStatus & getStatus() const;
+  const size_t & getCurrentSectionIndex() const;
+  void reset();
+
+private:
+  void initCallback_();
+  void followCallback_();
+  void stopCallback_();
+  void changeDirectionCallback_();
+
+private:
+  CommandType command_;
+  FeedbackType feedback_;
+  std::vector<PathMatchedPoint2D> matchedPoints_;
+
+  size_t currentSectionIndex_;
+  PathFollowingFSMStatus status_;
+};
+
+}   // namespace core
 }  // namespace romea
 
 #endif  // ROMEA_CORE_PATH_FOLLOWING__PATHFOLLOWINGFSM_HPP_

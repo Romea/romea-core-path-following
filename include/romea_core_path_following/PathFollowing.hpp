@@ -26,9 +26,11 @@
 #include "romea_core_common/log/SimpleFileLogger.hpp"
 #include "romea_core_path/PathFrenetPose2D.hpp"
 #include "romea_core_path/PathPosture2D.hpp"
+#include "romea_core_path_following/PathFollowingFSM.hpp"
 #include "romea_core_path_following/PathFollowingLogs.hpp"
 #include "romea_core_path_following/PathFollowingTraits.hpp"
 #include "romea_core_path_following/PathFollowingSetPoint.hpp"
+#include "romea_core_path_following/PathFollowingUtils.hpp"
 
 
 namespace romea
@@ -53,17 +55,40 @@ public:
     logger_ = logger;
   }
 
-  virtual CommandType computeCommand(
+  virtual PathFollowingFSMStatus getStatus()
+  {
+    return fsm_.getStatus();
+  }
+
+  virtual std::optional<CommandType> computeCommand(
     const PathFollowingSetPoint & userSetPoint,
     const CommandLimits & commandLimits,
-    const PathMatchedPoint2D & matchedPoint,
+    const std::vector<PathMatchedPoint2D> & matchedPoints,
     const OdometryMeasure & odometryMeasure,
     const Twist2D & filteredTwist)
   {
-    PathFollowingSetPoint setPoint = evaluateSetPoint(userSetPoint, matchedPoint);
+    fsm_.updateMatchedPoints(matchedPoints);
 
-    if (setPoint.lateralDeviation >= 0) {
-      return computeCommand(
+    if (this->fsm_.getStatus() == PathFollowingFSMStatus::FAILED ||
+      this->fsm_.getStatus() == PathFollowingFSMStatus::FINISH)
+    {
+      return {};
+    }
+
+    auto matchedPoint = *findMatchedPointBySectionIndex(
+      matchedPoints, fsm_.getCurrentSectionIndex());
+
+    auto setPoint = evaluateSetPoint(userSetPoint, matchedPoint);
+
+    if (this->fsm_.getStatus() == PathFollowingFSMStatus::STOP ||
+      this->fsm_.getStatus() == PathFollowingFSMStatus::CHANGE_DIRECTION)
+    {
+      setPoint.linearSpeed = 0;
+    }
+
+    CommandType command;
+    if (direction(matchedPoint) >= 0) {
+      command = computeCommand(
         setPoint,
         commandLimits,
         matchedPoint.frenetPose,
@@ -72,7 +97,7 @@ public:
         odometryMeasure,
         filteredTwist);
     } else {
-      return computeCommand(
+      command = computeCommand(
         setPoint,
         commandLimits,
         reverse(matchedPoint.frenetPose),
@@ -81,6 +106,9 @@ public:
         odometryMeasure,
         filteredTwist);
     }
+
+    fsm_.updateOdometry(command, odometryMeasure);
+    return command;
   }
 
   virtual void reset() = 0;
@@ -95,6 +123,7 @@ public:
     const Twist2D & filteredTwist) = 0;
 
 protected:
+  PathFollowingFSM<CommandType> fsm_;
   std::shared_ptr<core::SimpleFileLogger> logger_;
 };
 
@@ -132,6 +161,7 @@ public:
       setPoint, frenetPose, pathPosture, odometryMeasure, filteredTwist);
 
     if (this->logger_ != nullptr) {
+      this->logger_->addEntry("fsm_status", static_cast<int>(this->fsm_.getStatus()));
       log(*this->logger_, setPoint);
       log(*this->logger_, frenetPose);
       log(*this->logger_, pathPosture);
@@ -148,8 +178,9 @@ public:
 
   void reset() override
   {
-    lateralControl_->reset();
-    longitudinalControl_->reset();
+    this->fsm_.reset();
+    this->lateralControl_->reset();
+    this->longitudinalControl_->reset();
   }
 
   std::shared_ptr<LateralControl> lateralControl_;
@@ -202,8 +233,8 @@ public:
     command.longitudinalSpeed = this->longitudinalControl_->computeLinearSpeed(
       setPoint, frenetPose, pathPosture, odometryMeasure, filteredTwist);
 
-
     if (this->logger_ != nullptr) {
+      this->logger_->addEntry("fsm_status", static_cast<int>(this->fsm_.getStatus()));
       log(*this->logger_, setPoint);
       log(*this->logger_, frenetPose);
       log(*this->logger_, pathPosture);
@@ -221,9 +252,10 @@ public:
 
   void reset() override
   {
-    lateralControl_->reset();
-    longitudinalControl_->reset();
-    slidingObserver_->reset();
+    this->fsm_.reset();
+    this->lateralControl_->reset();
+    this->longitudinalControl_->reset();
+    this->slidingObserver_->reset();
   }
 
 private:
@@ -253,29 +285,12 @@ public:
     const SkidSteeringMeasure & odometryMeasure,
     const Twist2D & filteredTwist) override
   {
-    OneAxleSteeringMeasure equivalentOdometryMeasure;
-    equivalentOdometryMeasure.longitudinalSpeed = odometryMeasure.longitudinalSpeed;
-    if (std::abs(odometryMeasure.longitudinalSpeed) > 0.01) {
-      equivalentOdometryMeasure.steeringAngle = std::atan(
-        wheelbase_ * odometryMeasure.angularSpeed / odometryMeasure.longitudinalSpeed);
-    } else {
-      equivalentOdometryMeasure.steeringAngle = 0;
-    }
-
-    OneAxleSteeringCommandLimits equivalentCommandLimits;
-    equivalentCommandLimits.longitudinalSpeed = commandLimits.longitudinalSpeed;
-
-    OneAxleSteeringCommand equivalentCommand = pathFollowing_->computeCommand(
-      setPoint, equivalentCommandLimits,
+    OneAxleSteeringCommand command = pathFollowing_->computeCommand(
+      setPoint, toOneAxleSteeringCommandLimits(commandLimits),
       frenetPose, pathPosture, futureCurvature,
-      equivalentOdometryMeasure, filteredTwist);
+      toOneAxleSteeringMeasure(odometryMeasure, wheelbase_), filteredTwist);
 
-    SkidSteeringCommand command;
-    command.longitudinalSpeed = equivalentCommand.longitudinalSpeed;
-    command.angularSpeed = equivalentCommand.longitudinalSpeed *
-      std::atan(equivalentCommand.steeringAngle) / wheelbase_;
-
-    return command;
+    return toSkidSteeringCommand(command, wheelbase_);
   }
 
   void reset() override

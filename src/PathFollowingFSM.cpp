@@ -12,7 +12,167 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-namespace
-{
+// std
+#include <limits>
+#include <vector>
 
+// romea
+#include "romea_core_path_following/PathFollowingFSM.hpp"
+
+namespace romea
+{
+namespace core
+{
+//-----------------------------------------------------------------------------
+template<typename CommandType>
+PathFollowingFSM<CommandType>::PathFollowingFSM()
+: command_(),
+  feedback_(),
+  matchedPoints_(),
+  currentSectionIndex_(std::numeric_limits<size_t>::max()),
+  status_(PathFollowingFSMStatus::INIT)
+{
 }
+
+//-----------------------------------------------------------------------------
+template<typename CommandType>
+void PathFollowingFSM<CommandType>::updateMatchedPoints(
+  const std::vector<PathMatchedPoint2D> & matchedPoints)
+{
+  matchedPoints_ = matchedPoints;
+
+  switch (status_) {
+    case PathFollowingFSMStatus::INIT:
+      initCallback_();
+      break;
+    case PathFollowingFSMStatus::FOLLOW:
+      followCallback_();
+      break;
+    default:
+      break;
+  }
+}
+
+//-----------------------------------------------------------------------------
+template<typename CommandType>
+void PathFollowingFSM<CommandType>::updateOdometry(
+  const CommandType & command,
+  const FeedbackType & feedback)
+{
+  command_ = command;
+  feedback_ = feedback;
+
+  switch (status_) {
+    case PathFollowingFSMStatus::STOP:
+      stopCallback_();
+      break;
+    case PathFollowingFSMStatus::CHANGE_DIRECTION:
+      changeDirectionCallback_();
+      break;
+    default:
+      break;
+  }
+}
+
+//-----------------------------------------------------------------------------
+template<typename CommandType>
+void PathFollowingFSM<CommandType>::initCallback_()
+{
+  if (matchedPoints_.empty()) {
+    status_ = PathFollowingFSMStatus::FAILED;
+  } else {
+    currentSectionIndex_ = matchedPoints_[0].sectionIndex;
+    status_ = PathFollowingFSMStatus::FOLLOW;
+  }
+}
+
+//-----------------------------------------------------------------------------
+template<typename CommandType>
+void PathFollowingFSM<CommandType>::followCallback_()
+{
+  auto matchedPoint = findMatchedPointBySectionIndex(
+    matchedPoints_, currentSectionIndex_);
+
+  if (!matchedPoint.has_value()) {
+    status_ = PathFollowingFSMStatus::FAILED;
+    currentSectionIndex_ = std::numeric_limits<size_t>::max();
+  } else if (matchedPoint->frenetPose.curvilinearAbscissa >=
+    matchedPoint->sectionMaximalCurvilinearAbscissa)
+  {
+    status_ = PathFollowingFSMStatus::STOP;
+  }
+}
+
+//-----------------------------------------------------------------------------
+template<typename CommandType>
+void PathFollowingFSM<CommandType>::stopCallback_()
+{
+  if (std::abs(feedback_.longitudinalSpeed) < 0.01) {
+    if (findMatchedPointBySectionIndex(matchedPoints_, currentSectionIndex_ + 1).has_value()) {
+      status_ = PathFollowingFSMStatus::CHANGE_DIRECTION;
+      currentSectionIndex_++;
+    } else {
+      currentSectionIndex_ = std::numeric_limits<size_t>::max();
+      status_ = PathFollowingFSMStatus::FINISH;
+    }
+  }
+}
+
+//-----------------------------------------------------------------------------
+template<>
+void PathFollowingFSM<OneAxleSteeringCommand>::changeDirectionCallback_()
+{
+  if (std::abs(command_.steeringAngle - feedback_.steeringAngle) < 0.05) {
+    status_ = PathFollowingFSMStatus::FOLLOW;
+  }
+}
+
+//-----------------------------------------------------------------------------
+template<>
+void PathFollowingFSM<TwoAxleSteeringCommand>::changeDirectionCallback_()
+{
+  // is_rear_steering_command_enabled_
+  if (std::abs(command_.frontSteeringAngle - feedback_.frontSteeringAngle) < 0.05 &&
+    std::abs(command_.rearSteeringAngle - feedback_.rearSteeringAngle) < 0.05)
+  {
+    status_ = PathFollowingFSMStatus::FOLLOW;
+  }
+}
+
+//-----------------------------------------------------------------------------
+template<>
+void PathFollowingFSM<SkidSteeringCommand>::changeDirectionCallback_()
+{
+  status_ = PathFollowingFSMStatus::FOLLOW;
+}
+
+//-----------------------------------------------------------------------------
+template<typename CommandType>
+void PathFollowingFSM<CommandType>::reset()
+{
+  command_ = CommandType();
+  feedback_ = FeedbackType();
+  status_ = PathFollowingFSMStatus::INIT;
+  currentSectionIndex_ = std::numeric_limits<size_t>::max();
+}
+
+//-----------------------------------------------------------------------------
+template<typename CommandType>
+const PathFollowingFSMStatus & PathFollowingFSM<CommandType>::getStatus() const
+{
+  return status_;
+}
+
+//-----------------------------------------------------------------------------
+template<typename CommandType>
+const size_t & PathFollowingFSM<CommandType>::getCurrentSectionIndex() const
+{
+  return currentSectionIndex_;
+}
+
+template class PathFollowingFSM<OneAxleSteeringCommand>;
+template class PathFollowingFSM<TwoAxleSteeringCommand>;
+template class PathFollowingFSM<SkidSteeringCommand>;
+
+}  // namespace core
+}  // namespace romea

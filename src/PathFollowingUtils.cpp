@@ -73,5 +73,42 @@ double getMaximalRearSteeringAngle(const OneAxleSteeringCommandLimits & /*limits
   return 0;
 }
 
+//-----------------------------------------------------------------------------
+OneAxleSteeringMeasure toOneAxleSteeringMeasure(
+  const SkidSteeringMeasure & skidSteeringMeasure,
+  const double & wheelbase)
+{
+  OneAxleSteeringMeasure oneAxleSteeringMeasure;
+  oneAxleSteeringMeasure.longitudinalSpeed = skidSteeringMeasure.longitudinalSpeed;
+  if (std::abs(skidSteeringMeasure.longitudinalSpeed) > 0.01) {
+    oneAxleSteeringMeasure.steeringAngle = std::atan(
+      wheelbase * skidSteeringMeasure.angularSpeed / skidSteeringMeasure.longitudinalSpeed);
+  } else {
+    oneAxleSteeringMeasure.steeringAngle = 0;
+  }
+  return oneAxleSteeringMeasure;
+}
+
+//-----------------------------------------------------------------------------
+SkidSteeringCommand toSkidSteeringCommand(
+  const OneAxleSteeringCommand & oneAxleSteeringCommand,
+  const double & wheelbase)
+{
+  return {
+    oneAxleSteeringCommand.longitudinalSpeed,
+    oneAxleSteeringCommand.longitudinalSpeed *
+    std::atan(oneAxleSteeringCommand.steeringAngle) / wheelbase
+  };
+}
+
+//-----------------------------------------------------------------------------
+OneAxleSteeringCommandLimits toOneAxleSteeringCommandLimits(
+  const SkidSteeringCommandLimits skidSteeringCommandLimits)
+{
+  OneAxleSteeringCommandLimits oneAxleSteeringCommandLimits;
+  oneAxleSteeringCommandLimits.longitudinalSpeed = skidSteeringCommandLimits.longitudinalSpeed;
+  return oneAxleSteeringCommandLimits;
+}
+
 }  // namespace core
 }  // namespace romea

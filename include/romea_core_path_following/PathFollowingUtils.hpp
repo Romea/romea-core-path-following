@@ -60,7 +60,18 @@ double setFrontSteeringAngle(const double frontSteeringAngle, OneAxleSteeringCom
 
 double setRearSteeringAngle(const double rearSteeringAngle, OneAxleSteeringCommand & command);
 
-}  // namespace core
+OneAxleSteeringMeasure toOneAxleSteeringMeasure(
+  const SkidSteeringMeasure & skidSteeringMeasure,
+  const double & wheelbase);
+
+SkidSteeringCommand toSkidSteeringCommand(
+  const OneAxleSteeringCommand & oneAxleSteeringCommand,
+  const double & wheelbase);
+
+OneAxleSteeringCommandLimits toOneAxleSteeringCommandLimits(
+  const SkidSteeringCommandLimits skidSteeringCommandLimits);
+
+} // namespace core
 }  // namespace romea
 
 #endif  // ROMEA_CORE_PATH_FOLLOWING__PATHFOLLOWINGUTILS_HPP_

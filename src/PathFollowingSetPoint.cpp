@@ -14,6 +14,7 @@
 
 
 // romea
+#include "romea_core_common/math/Algorithm.hpp"
 #include "romea_core_path_following/PathFollowingSetPoint.hpp"
 
 namespace romea
@@ -26,7 +27,7 @@ PathFollowingSetPoint evaluateSetPoint(
   const PathFollowingSetPoint & desiredSetPoint,
   const PathMatchedPoint2D & pathMatchedPoint)
 {
-  PathFollowingSetPoint setPoint = desiredSetPoint;
+  PathFollowingSetPoint setPoint;
 
   if (!std::isfinite(desiredSetPoint.linearSpeed)) {
     if (std::isfinite(pathMatchedPoint.desiredSpeed)) {
@@ -34,8 +35,16 @@ PathFollowingSetPoint evaluateSetPoint(
     } else {
       setPoint.linearSpeed = 0;
     }
+  } else {
+    if (std::isfinite(pathMatchedPoint.desiredSpeed)) {
+      setPoint.linearSpeed = sign(pathMatchedPoint.desiredSpeed) * desiredSetPoint.linearSpeed;
+    } else {
+      setPoint.linearSpeed = desiredSetPoint.linearSpeed;
+    }
   }
 
+  setPoint.lateralDeviation = desiredSetPoint.lateralDeviation;
+  setPoint.courseDeviation = desiredSetPoint.courseDeviation;
   return setPoint;
 }
 

@@ -18,6 +18,7 @@ find_package(nlohmann_json 3.7 REQUIRED)
 
 add_library(${PROJECT_NAME} SHARED
   src/PathFollowingLogs.cpp
+  src/PathFollowingFSM.cpp
   src/PathFollowingSetPoint.cpp
   src/PathFollowingUtils.cpp
   src/lateral_control/LateralControlBackStepping.cpp
@@ -89,7 +90,7 @@ set(CPACK_RESOURCE_FILE_LICENSE "${PROJECT_SOURCE_DIR}/LICENSE")
 
 option(BUILD_TESTING "BUILD WITH TESTS" ON)
 
-# if(BUILD_TESTING)
-#   enable_testing()
-#   add_subdirectory(test)
-# endif()
+if(BUILD_TESTING)
+  enable_testing()
+  add_subdirectory(test)
+endif()
