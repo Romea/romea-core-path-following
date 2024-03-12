@@ -42,6 +42,8 @@ template<typename CommandType>
 class PathFollowingBase
 {
 public:
+  using Logger = core::SimpleFileLogger;
+  using FSM = PathFollowingFSM<CommandType>;
   using OdometryMeasure = typename PathFollowingTraits<CommandType>::Measure;
   using CommandLimits = typename PathFollowingTraits<CommandType>::Limits;
 
@@ -50,7 +52,7 @@ public:
 
   virtual ~PathFollowingBase() = default;
 
-  virtual void registerLogger(std::shared_ptr<core::SimpleFileLogger> logger)
+  virtual void registerLogger(std::shared_ptr<Logger> logger)
   {
     logger_ = logger;
   }
@@ -123,8 +125,8 @@ public:
     const Twist2D & filteredTwist) = 0;
 
 protected:
-  PathFollowingFSM<CommandType> fsm_;
-  std::shared_ptr<core::SimpleFileLogger> logger_;
+  FSM fsm_;
+  std::shared_ptr<Logger> logger_;
 };
 
 template<typename LateralControl, typename LongitudinalControl>
