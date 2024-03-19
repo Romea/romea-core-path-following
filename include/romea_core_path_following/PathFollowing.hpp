@@ -109,6 +109,16 @@ public:
         filteredTwist);
     }
 
+    if constexpr (std::is_same_v<CommandType, core::SkidSteeringCommand>)
+    {
+      if (this->fsm_.getStatus() == PathFollowingFSMStatus::STOP ||
+        this->fsm_.getStatus() == PathFollowingFSMStatus::CHANGE_DIRECTION)
+      {
+        command.longitudinalSpeed = 0;
+        command.angularSpeed = 0;
+      }
+    }
+
     fsm_.updateOdometry(command, odometryMeasure);
     return command;
   }
