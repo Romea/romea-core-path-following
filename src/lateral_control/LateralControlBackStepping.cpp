@@ -33,14 +33,13 @@ PathFollowingLateralControlBackStepping(
   gains_(parameters.gains),
   lateralControl_(samplePeriod, wheelbase,
     {parameters.gains.KP,
-      parameters.gains.KI,
       parameters.gains.KD,
+      parameters.gains.KI,
       parameters.gains.IClamp,
       0,
       parameters.maximalOmegaD})
 {
 }
-
 
 //-----------------------------------------------------------------------------
 SkidSteeringCommand
