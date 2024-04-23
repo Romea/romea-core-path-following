@@ -38,6 +38,15 @@ enum class PathFollowingFSMStatus
   FAILED
 };
 
+constexpr const char * PATH_FOLLOWING_FSM_STATUS_STRINGS[] = {
+  "INIT",
+  "FOLLOW",
+  "STOP",
+  "CHANGE_DIRECTION",
+  "FINISH",
+  "FAILED"
+};
+
 template<typename CommandType>
 class PathFollowingFSM
 {
@@ -52,12 +61,14 @@ public:
   const PathFollowingFSMStatus & getStatus() const;
   const size_t & getCurrentSectionIndex() const;
   void reset();
+  const char * getStatusString();
 
 private:
   void initCallback_();
   void followCallback_();
   void stopCallback_();
   void changeDirectionCallback_();
+  void setStatus(PathFollowingFSMStatus status);
 
 private:
   CommandType command_;
