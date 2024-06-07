@@ -62,6 +62,7 @@ public:
   const size_t & getCurrentSectionIndex() const;
   void reset();
   const char * getStatusString();
+  void setStopAtTheEnd(bool value) { stop_at_the_end_ = value; }
 
 private:
   void initCallback_();
@@ -77,6 +78,7 @@ private:
 
   size_t currentSectionIndex_;
   PathFollowingFSMStatus status_;
+  bool stop_at_the_end_ = true;
 };
 
 }   // namespace core

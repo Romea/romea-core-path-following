@@ -97,10 +97,12 @@ void PathFollowingFSM<CommandType>::followCallback_()
   if (!matchedPoint.has_value()) {
     setStatus(PathFollowingFSMStatus::FAILED);
     currentSectionIndex_ = std::numeric_limits<size_t>::max();
-  } else if (matchedPoint->frenetPose.curvilinearAbscissa >=
-    matchedPoint->sectionMaximalCurvilinearAbscissa)
+  } else if (stop_at_the_end_ &&
+    matchedPoint->frenetPose.curvilinearAbscissa >= matchedPoint->sectionMaximalCurvilinearAbscissa)
   {
-    setStatus(PathFollowingFSMStatus::STOP);
+    if(stop_at_the_end_) {
+      setStatus(PathFollowingFSMStatus::STOP);
+    }
   }
 }
 
