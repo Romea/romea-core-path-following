@@ -35,6 +35,8 @@ void log(SimpleFileLogger & logger, const PathFrenetPose2D & frenet_pose)
 //-----------------------------------------------------------------------------
 void log(SimpleFileLogger & logger, const PathPosture2D & path_posture)
 {
+  logger.addEntry("path_x", path_posture.position.x());
+  logger.addEntry("path_y", path_posture.position.y());
   logger.addEntry("path_course", path_posture.course);
   logger.addEntry("path_curvature", path_posture.curvature);
 }
