@@ -288,6 +288,12 @@ public:
   {
   }
 
+  void registerLogger(std::shared_ptr<Logger> logger)
+  {
+    logger_ = logger;
+    pathFollowing_->registerLogger(logger);
+  }
+
   SkidSteeringCommand computeCommand(
     const PathFollowingSetPoint & setPoint,
     const SkidSteeringCommandLimits & commandLimits,
@@ -301,6 +307,11 @@ public:
       setPoint, toOneAxleSteeringCommandLimits(commandLimits),
       frenetPose, pathPosture, futureCurvature,
       toOneAxleSteeringMeasure(odometryMeasure, wheelbase_), filteredTwist);
+
+    if (logger_ != nullptr) {
+      log(*this->logger_, odometryMeasure);
+      log(*this->logger_, toSkidSteeringCommand(command, wheelbase_));
+    }
 
     return toSkidSteeringCommand(command, wheelbase_);
   }
