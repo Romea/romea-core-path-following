@@ -97,7 +97,7 @@ SkidSteeringCommand toSkidSteeringCommand(
   return {
     oneAxleSteeringCommand.longitudinalSpeed,
     oneAxleSteeringCommand.longitudinalSpeed *
-    std::atan(oneAxleSteeringCommand.steeringAngle) / wheelbase
+    std::tan(oneAxleSteeringCommand.steeringAngle) / wheelbase
   };
 }
 
