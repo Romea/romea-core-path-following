@@ -1,6 +1,6 @@
-# Romea Core Path Following Library
+# romea_core_path_following
 
-The **Romea Core Path Following Library** provides an implementation of a trajectory-following algorithm that can control a robot's deviation from its path as well as its speed. This is achieved by using the commands and sliding algorithms defined in the **romea_core_control** library.
+This project is C++ library that provides an implementation of a trajectory-following algorithm that can control a robot's deviation from its path as well as its speed. This is achieved by using the commands and sliding algorithms defined in the **romea_core_control** library.
 
 This algorithm enables the robot to follow complex trajectories based on the **romea_core_path** library, potentially allowing for maneuvers such as half-turns or U-turns. It takes as input the results from a path matching algorithm provided in the **romea_core_path_matching** library.
 
@@ -35,7 +35,7 @@ This project is released under the Apache License 2.0. See the LICENSE file for 
 
 ## **Authors**
 
-The Romea Core Path Following library, written by **Jean Laneurit** and **Cyrille Pierre**, was developed during ANR Baudet Rob 2 and ANR Tiara projects. Several individuals contributed scientifically to the development of this library:
+The romea_core_path_following library, written by **Jean Laneurit** and **Cyrille Pierre**, was developed during ANR Baudet Rob 2 and ANR Tiara projects. Several individuals contributed scientifically to the development of this library:
 
 **Jean Laneurit**  
 **Roland Lenain**  
@@ -45,4 +45,4 @@ The Romea Core Path Following library, written by **Jean Laneurit** and **Cyrill
 
 ## **Contact**
 
-If you have any questions or comments about Romea Core Path Following library, please contact **[Jean Laneurit](mailto:jean.laneurit@inrae.fr)** or **[Cyrille Pierre](mailto:cyrille.pierre@inrae.fr)**.
+If you have any questions or comments about romea_core_path_following library, please contact **[Jean Laneurit](mailto:jean.laneurit@inrae.fr)** or **[Cyrille Pierre](mailto:cyrille.pierre@inrae.fr)**.
