@@ -89,7 +89,6 @@ TEST_F(TestFSM, testGoToFollow)
 
   checkStatus(fsm, romea::core::PathFollowingFSMStatus::FOLLOW);
   checkSectionIndex(fsm, 1);
-
 }
 
 //-----------------------------------------------------------------------------

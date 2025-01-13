@@ -71,7 +71,7 @@ SkidSteeringCommand toSkidSteeringCommand(
 OneAxleSteeringCommandLimits toOneAxleSteeringCommandLimits(
   const SkidSteeringCommandLimits skidSteeringCommandLimits);
 
-} // namespace core
+}  // namespace core
 }  // namespace romea
 
 #endif  // ROMEA_CORE_PATH_FOLLOWING__PATHFOLLOWINGUTILS_HPP_
