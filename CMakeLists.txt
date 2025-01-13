@@ -27,6 +27,7 @@ add_library(${PROJECT_NAME} SHARED
   src/longitudinal_control/LongitudinalControlClassic.cpp
   src/sliding_observer/SlidingObserverExtendedCinematicLyapunov.cpp
   src/sliding_observer/SlidingObserverExtendedCinematicLinearTangent.cpp
+  src/PathFollowingPlatoon.cpp
 )
 
 target_include_directories(${PROJECT_NAME} PUBLIC
