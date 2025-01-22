@@ -25,6 +25,7 @@
 #include "romea_core_common/time/Time.hpp"
 #include "romea_core_common/geometry/Twist2D.hpp"
 #include "romea_core_common/log/SimpleFileLogger.hpp"
+#include "romea_core_common/concurrency/SharedVariable.hpp"
 #include "romea_core_path/PathMatchedPoint2D.hpp"
 
 #include "romea_core_control/command/KeepInterdistance.hpp"
@@ -64,14 +65,19 @@ public:
   std::optional<double> computeLinearSpeedCommand(const Duration & stamp);
 
 private:
-  bool isVehicleInfoAvailable_(const PathMatchingInfo & info, const Duration & stamp);
-  double computeLinearSpeedCommand_();
+  double computeLinearSpeedCommand_(
+    const PathMatchingInfo & previousVehicleInfo_,
+    const PathMatchingInfo & currentVehicleInfo,
+    const PathMatchingInfo & nextVehicleInfo);
+
   void clampLinearSpeedCommand_();
 
+  bool isVehicleInfoAvailable_(const PathMatchingInfo & info, const Duration & stamp);
+
 private:
-  PathMatchingInfo previousVehicleInfo_;
-  PathMatchingInfo currentVehicleInfo_;
-  PathMatchingInfo nextVehicleInfo_;
+  SharedVariable<PathMatchingInfo> previousVehicleInfo_;
+  SharedVariable<PathMatchingInfo> currentVehicleInfo_;
+  SharedVariable<PathMatchingInfo> nextVehicleInfo_;
 
   double samplingPeriod_;
   double desiredInterDistance_;

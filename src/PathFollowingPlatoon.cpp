@@ -143,12 +143,16 @@ bool PathFollowingPlatoon::isVehicleInfoAvailable_(
 //---------------------------------------------------------------------------
 std::optional<double> PathFollowingPlatoon::computeLinearSpeedCommand(const Duration & stamp)
 {
+  auto previousVehicleInfo = previousVehicleInfo_.load();
+  auto currentVehicleInfo = currentVehicleInfo_.load();
+  auto nextVehicleInfo = nextVehicleInfo_.load();
+
   // check rate equal to sampling period = stamp;
-  if (isVehicleInfoAvailable_(nextVehicleInfo_, stamp) &&
-    isVehicleInfoAvailable_(nextVehicleInfo_, stamp) &&
-    getSectionIndex(nextVehicleInfo_) == getSectionIndex(currentVehicleInfo_))
+  if (isVehicleInfoAvailable_(currentVehicleInfo_, stamp) &&
+    isVehicleInfoAvailable_(nextVehicleInfo, stamp) &&
+    getSectionIndex(nextVehicleInfo) == getSectionIndex(currentVehicleInfo_))
   {
-    return computeLinearSpeedCommand_();
+    return computeLinearSpeedCommand_(previousVehicleInfo, currentVehicleInfo, nextVehicleInfo);
   } else {
     previousLinearSpeedCommand_ = std::numeric_limits<double>::quiet_NaN();
     return {};
@@ -156,19 +160,27 @@ std::optional<double> PathFollowingPlatoon::computeLinearSpeedCommand(const Dura
 }
 
 //---------------------------------------------------------------------------
-double PathFollowingPlatoon::computeLinearSpeedCommand_()
+double PathFollowingPlatoon::computeLinearSpeedCommand_(
+  const PathMatchingInfo & previousVehicleInfo_,
+  const PathMatchingInfo & currentVehicleInfo,
+  const PathMatchingInfo & nextVehicleInfo)
 {
   auto leader_position = getPosition(nextVehicleInfo_);
   auto leader_linear_speed = getLongitudinalSpeed(nextVehicleInfo_);
-  auto leader_course_deviation = getCourseDeviation(currentVehicleInfo_);
-  auto leader_lateral_deviation = getLateralDeviation(currentVehicleInfo_);
+  auto leader_course_deviation = getCourseDeviation(nextVehicleInfo_);
+  auto leader_lateral_deviation = getLateralDeviation(nextVehicleInfo_);
   auto leader_curvilinear_abscissa = getCurvilinearAbscissa(nextVehicleInfo_);
 
-  auto follower_position = getLongitudinalSpeed(nextVehicleInfo_);
+  auto follower_position = getLongitudinalSpeed(currentVehicleInfo_);
   auto follower_linear_speed = getLongitudinalSpeed(currentVehicleInfo_);
   auto follower_course_deviation = getCourseDeviation(currentVehicleInfo_);
   auto follower_lateral_deviation = getLateralDeviation(currentVehicleInfo_);
   auto follower_curvilinear_abscissa = getCurvilinearAbscissa(currentVehicleInfo_);
+
+  std::cout << "leader_lateral_deviation " << leader_lateral_deviation << std::endl;
+  std::cout << "follower_lateral_deviation " << follower_lateral_deviation << std::endl;
+  std::cout << "leader_curvilinear_abscissa " << leader_curvilinear_abscissa << std::endl;
+  std::cout << "follower_curvilinear_abscissa " << follower_curvilinear_abscissa << std::endl;
 
   auto curvature = getCurvature(currentVehicleInfo_);
 
@@ -251,6 +263,12 @@ void PathFollowingPlatoon::clampLinearSpeedCommand_()
 {
   const double & dt = samplingPeriod_;
 
+  std::cout << "previousLinearSpeedCommand_ " << previousLinearSpeedCommand_ << std::endl;
+  std::cout << "currentLinearSpeedCommand_ " << currentLinearSpeedCommand_ << std::endl;
+  currentLinearSpeedCommand_ = std::clamp(
+    currentLinearSpeedCommand_, -maximalLinearSpeed_, maximalLinearSpeed_);
+  std::cout << "clamped currentLinearSpeedCommand_ " << currentLinearSpeedCommand_ << std::endl;
+
   if (!std::isfinite(previousLinearSpeedCommand_)) {
     previousLinearSpeedCommand_ = getLongitudinalSpeed(currentVehicleInfo_);
   }
@@ -262,6 +280,8 @@ void PathFollowingPlatoon::clampLinearSpeedCommand_()
   } else if (acceleration < minimalLinearAcceleration_) {
     currentLinearSpeedCommand_ = previousLinearSpeedCommand_ + minimalLinearAcceleration_ * dt;
   }
+
+  std::cout << "clamped acc currentLinearSpeedCommand_ " << currentLinearSpeedCommand_ << std::endl;
 
   previousLinearSpeedCommand_ = currentLinearSpeedCommand_;
 }
