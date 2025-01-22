@@ -80,7 +80,7 @@ template<typename CommandType>
 void PathFollowingFSM<CommandType>::initCallback_()
 {
   if (matchedPoints_.empty()) {
-    setStatus(PathFollowingFSMStatus::FAILED);
+    // setStatus(PathFollowingFSMStatus::FAILED);
   } else {
     currentSectionIndex_ = matchedPoints_[0].sectionIndex;
     setStatus(PathFollowingFSMStatus::FOLLOW);
@@ -100,7 +100,7 @@ void PathFollowingFSM<CommandType>::followCallback_()
   } else if (stop_at_the_end_ &&
     matchedPoint->frenetPose.curvilinearAbscissa >= matchedPoint->sectionMaximalCurvilinearAbscissa)
   {
-    if(stop_at_the_end_) {
+    if (stop_at_the_end_) {
       setStatus(PathFollowingFSMStatus::STOP);
     }
   }
