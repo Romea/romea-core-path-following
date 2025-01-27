@@ -57,6 +57,11 @@ public:
     logger_ = logger;
   }
 
+  virtual void setStopAtTheEnd(bool value)
+  {
+    fsm_.setStopAtTheEnd(value);
+  }
+
   virtual PathFollowingFSMStatus getStatus()
   {
     return fsm_.getStatus();
