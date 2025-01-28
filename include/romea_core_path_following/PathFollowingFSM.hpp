@@ -57,7 +57,7 @@ public:
   PathFollowingFSM();
 
   void updateMatchedPoints(const std::vector<PathMatchedPoint2D> & matchedPoints);
-  void updateOdometry(const CommandType & command, const FeedbackType & odometry);
+  void updateOdometry(const CommandType & command, const FeedbackType & feedback);
   const PathFollowingFSMStatus & getStatus() const;
   const size_t & getCurrentSectionIndex() const;
   void reset();

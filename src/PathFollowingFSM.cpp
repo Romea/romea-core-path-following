@@ -13,9 +13,9 @@
 // limitations under the License.
 
 // std
+#include <iostream>
 #include <limits>
 #include <vector>
-#include <iostream>
 
 // romea
 #include "romea_core_path_following/PathFollowingFSM.hpp"
@@ -29,7 +29,6 @@ template<typename CommandType>
 PathFollowingFSM<CommandType>::PathFollowingFSM()
 : command_(),
   feedback_(),
-  matchedPoints_(),
   currentSectionIndex_(std::numeric_limits<size_t>::max()),
   status_(PathFollowingFSMStatus::INIT)
 {
@@ -57,8 +56,7 @@ void PathFollowingFSM<CommandType>::updateMatchedPoints(
 //-----------------------------------------------------------------------------
 template<typename CommandType>
 void PathFollowingFSM<CommandType>::updateOdometry(
-  const CommandType & command,
-  const FeedbackType & feedback)
+  const CommandType & command, const FeedbackType & feedback)
 {
   command_ = command;
   feedback_ = feedback;
@@ -91,18 +89,15 @@ void PathFollowingFSM<CommandType>::initCallback_()
 template<typename CommandType>
 void PathFollowingFSM<CommandType>::followCallback_()
 {
-  auto matchedPoint = findMatchedPointBySectionIndex(
-    matchedPoints_, currentSectionIndex_);
+  auto matchedPoint = findMatchedPointBySectionIndex(matchedPoints_, currentSectionIndex_);
 
   if (!matchedPoint.has_value()) {
     setStatus(PathFollowingFSMStatus::FAILED);
     currentSectionIndex_ = std::numeric_limits<size_t>::max();
-  } else if (stop_at_the_end_ &&
-    matchedPoint->frenetPose.curvilinearAbscissa >= matchedPoint->sectionMaximalCurvilinearAbscissa)
-  {
-    if (stop_at_the_end_) {
-      setStatus(PathFollowingFSMStatus::STOP);
-    }
+  } else if (
+    matchedPoint->frenetPose.curvilinearAbscissa >=
+    matchedPoint->sectionMaximalCurvilinearAbscissa) {
+    setStatus(PathFollowingFSMStatus::STOP);
   }
 }
 
@@ -114,9 +109,11 @@ void PathFollowingFSM<CommandType>::stopCallback_()
     if (findMatchedPointBySectionIndex(matchedPoints_, currentSectionIndex_ + 1).has_value()) {
       setStatus(PathFollowingFSMStatus::CHANGE_DIRECTION);
       currentSectionIndex_++;
-    } else {
+    } else if (stop_at_the_end_) {
       currentSectionIndex_ = std::numeric_limits<size_t>::max();
       setStatus(PathFollowingFSMStatus::FINISH);
+    } else {
+      setStatus(PathFollowingFSMStatus::INIT);
     }
   }
 }
@@ -135,9 +132,9 @@ template<>
 void PathFollowingFSM<TwoAxleSteeringCommand>::changeDirectionCallback_()
 {
   // is_rear_steering_command_enabled_
-  if (std::abs(command_.frontSteeringAngle - feedback_.frontSteeringAngle) < 0.05 &&
-    std::abs(command_.rearSteeringAngle - feedback_.rearSteeringAngle) < 0.05)
-  {
+  if (
+    std::abs(command_.frontSteeringAngle - feedback_.frontSteeringAngle) < 0.05 &&
+    std::abs(command_.rearSteeringAngle - feedback_.rearSteeringAngle) < 0.05) {
     setStatus(PathFollowingFSMStatus::FOLLOW);
   }
 }

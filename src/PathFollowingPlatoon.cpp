@@ -177,10 +177,10 @@ double PathFollowingPlatoon::computeLinearSpeedCommand_(
   auto follower_lateral_deviation = getLateralDeviation(currentVehicleInfo_);
   auto follower_curvilinear_abscissa = getCurvilinearAbscissa(currentVehicleInfo_);
 
-  std::cout << "leader_lateral_deviation " << leader_lateral_deviation << std::endl;
-  std::cout << "follower_lateral_deviation " << follower_lateral_deviation << std::endl;
-  std::cout << "leader_curvilinear_abscissa " << leader_curvilinear_abscissa << std::endl;
-  std::cout << "follower_curvilinear_abscissa " << follower_curvilinear_abscissa << std::endl;
+  // std::cout << "leader_lateral_deviation " << leader_lateral_deviation << std::endl;
+  // std::cout << "follower_lateral_deviation " << follower_lateral_deviation << std::endl;
+  // std::cout << "leader_curvilinear_abscissa " << leader_curvilinear_abscissa << std::endl;
+  // std::cout << "follower_curvilinear_abscissa " << follower_curvilinear_abscissa << std::endl;
 
   auto curvature = getCurvature(currentVehicleInfo_);
 
@@ -263,11 +263,11 @@ void PathFollowingPlatoon::clampLinearSpeedCommand_()
 {
   const double & dt = samplingPeriod_;
 
-  std::cout << "previousLinearSpeedCommand_ " << previousLinearSpeedCommand_ << std::endl;
-  std::cout << "currentLinearSpeedCommand_ " << currentLinearSpeedCommand_ << std::endl;
+  // std::cout << "previousLinearSpeedCommand_ " << previousLinearSpeedCommand_ << std::endl;
+  // std::cout << "currentLinearSpeedCommand_ " << currentLinearSpeedCommand_ << std::endl;
   currentLinearSpeedCommand_ = std::clamp(
     currentLinearSpeedCommand_, -maximalLinearSpeed_, maximalLinearSpeed_);
-  std::cout << "clamped currentLinearSpeedCommand_ " << currentLinearSpeedCommand_ << std::endl;
+  // std::cout << "clamped currentLinearSpeedCommand_ " << currentLinearSpeedCommand_ << std::endl;
 
   if (!std::isfinite(previousLinearSpeedCommand_)) {
     previousLinearSpeedCommand_ = getLongitudinalSpeed(currentVehicleInfo_);
@@ -281,7 +281,7 @@ void PathFollowingPlatoon::clampLinearSpeedCommand_()
     currentLinearSpeedCommand_ = previousLinearSpeedCommand_ + minimalLinearAcceleration_ * dt;
   }
 
-  std::cout << "clamped acc currentLinearSpeedCommand_ " << currentLinearSpeedCommand_ << std::endl;
+  // std::cout << "clamped acc currentLinearSpeedCommand_ " << currentLinearSpeedCommand_ << std::endl;
 
   previousLinearSpeedCommand_ = currentLinearSpeedCommand_;
 }
