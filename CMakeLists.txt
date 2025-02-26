@@ -25,6 +25,7 @@ add_library(${PROJECT_NAME} SHARED
   src/lateral_control/back_stepping.cpp
   src/lateral_control/classic.cpp
   src/lateral_control/predictive.cpp
+  src/lateral_control/front_rear_decoupled.cpp
   src/longitudinal_control/classic.cpp
   src/sliding_observer/extended/cinematic_lyapunov.cpp
   src/sliding_observer/extended/cinematic_linear_tangent.cpp
