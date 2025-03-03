@@ -101,10 +101,10 @@ void FSM<CommandType>::follow_callback_()
     set_status(FSMStatus::FAILED);
     current_section_index_ = std::numeric_limits<size_t>::max();
   } else if (
-    matchedPoint->frenetPose.curvilinearAbscissa >=
-    matchedPoint->sectionMaximalCurvilinearAbscissa)
+    matched_point->frenetPose.curvilinearAbscissa >=
+    matched_point->sectionMaximalCurvilinearAbscissa)
   {
-    set_status(PathFollowingFSMStatus::STOP);
+    set_status(FSMStatus::STOP);
   }
 
 }
@@ -114,14 +114,14 @@ template<typename CommandType>
 void FSM<CommandType>::stop_callback_()
 {
   if (std::abs(feedback_.longitudinalSpeed) < 0.01) {
-    if (findMatchedPointBySectionIndex(matchedPoints_, currentSectionIndex_ + 1).has_value()) {
-      setStatus(PathFollowingFSMStatus::CHANGE_DIRECTION);
-      currentSectionIndex_++;
+    if (findMatchedPointBySectionIndex(matched_points_, current_section_index_ + 1).has_value()) {
+      set_status(FSMStatus::CHANGE_DIRECTION);
+      current_section_index_++;
     } else if (stop_at_the_end_) {
-      currentSectionIndex_ = std::numeric_limits<size_t>::max();
-      set_status(PathFollowingFSMStatus::FINISH);
+      current_section_index_ = std::numeric_limits<size_t>::max();
+      set_status(FSMStatus::FINISH);
     } else {
-      set_status(PathFollowingFSMStatus::INIT);
+      set_status(FSMStatus::INIT);
     }
 
   }
