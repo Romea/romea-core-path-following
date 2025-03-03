@@ -20,22 +20,22 @@
 #include "gtest/gtest.h"
 
 // romea
-#include "romea_core_path_following/PathFollowingFSM.hpp"
+#include "romea_core_path_following/fsm.hpp"
 
 template<typename CommandType>
-void checkStatus(
-  const romea::core::PathFollowingFSM<CommandType> & fsm,
-  const romea::core::PathFollowingFSMStatus & status)
+void check_status(
+  const romea::core::path_following::FSM<CommandType> & fsm,
+  const romea::core::path_following::FSMStatus & status)
 {
-  EXPECT_EQ(static_cast<int>(fsm.getStatus()), static_cast<int>(status));
+  EXPECT_EQ(static_cast<int>(fsm.get_status()), static_cast<int>(status));
 }
 
 template<typename CommandType>
-void checkSectionIndex(
-  const romea::core::PathFollowingFSM<CommandType> & fsm,
-  const size_t & sectionIndex)
+void check_section_index(
+  const romea::core::path_following::FSM<CommandType> & fsm,
+  const size_t & section_index)
 {
-  EXPECT_EQ(fsm.getCurrentSectionIndex(), sectionIndex);
+  EXPECT_EQ(fsm.get_current_section_index(), section_index);
 }
 
 class TestFSM : public ::testing::Test
@@ -43,88 +43,88 @@ class TestFSM : public ::testing::Test
 public:
   TestFSM()
   {
-    firstMatchedPoint.sectionIndex = 1;
-    firstMatchedPoint.frenetPose.curvilinearAbscissa = 19.;
-    firstMatchedPoint.sectionMinimalCurvilinearAbscissa = 10;
-    firstMatchedPoint.sectionMaximalCurvilinearAbscissa = 20;
-    secondMatchedPoint.sectionIndex = 1;
-    secondMatchedPoint.frenetPose.curvilinearAbscissa = 21.;
-    secondMatchedPoint.sectionMinimalCurvilinearAbscissa = 10;
-    secondMatchedPoint.sectionMaximalCurvilinearAbscissa = 20;
-    thirdMatchedPoint.sectionIndex = 2;
-    thirdMatchedPoint.frenetPose.curvilinearAbscissa = 21.;
-    thirdMatchedPoint.sectionMinimalCurvilinearAbscissa = 20;
-    thirdMatchedPoint.sectionMaximalCurvilinearAbscissa = 30;
+    first_matched_point.sectionIndex = 1;
+    first_matched_point.frenetPose.curvilinearAbscissa = 19.;
+    first_matched_point.sectionMinimalCurvilinearAbscissa = 10;
+    first_matched_point.sectionMaximalCurvilinearAbscissa = 20;
+    second_matched_point.sectionIndex = 1;
+    second_matched_point.frenetPose.curvilinearAbscissa = 21.;
+    second_matched_point.sectionMinimalCurvilinearAbscissa = 10;
+    second_matched_point.sectionMaximalCurvilinearAbscissa = 20;
+    third_matched_point.sectionIndex = 2;
+    third_matched_point.frenetPose.curvilinearAbscissa = 21.;
+    third_matched_point.sectionMinimalCurvilinearAbscissa = 20;
+    third_matched_point.sectionMaximalCurvilinearAbscissa = 30;
   }
 
-  romea::core::PathMatchedPoint2D firstMatchedPoint;
-  romea::core::PathMatchedPoint2D secondMatchedPoint;
-  romea::core::PathMatchedPoint2D thirdMatchedPoint;
+  romea::core::PathMatchedPoint2D first_matched_point;
+  romea::core::PathMatchedPoint2D second_matched_point;
+  romea::core::PathMatchedPoint2D third_matched_point;
 };
 
 //-----------------------------------------------------------------------------
 TEST_F(TestFSM, testInit)
 {
-  romea::core::PathFollowingFSM<romea::core::OneAxleSteeringCommand> fsm;
+  romea::core::path_following::FSM<romea::core::OneAxleSteeringCommand> fsm;
 
-  checkStatus(fsm, romea::core::PathFollowingFSMStatus::INIT);
+  check_status(fsm, romea::core::path_following::FSMStatus::INIT);
 }
 
 //-----------------------------------------------------------------------------
 TEST_F(TestFSM, testInitFailed)
 {
-  romea::core::PathFollowingFSM<romea::core::OneAxleSteeringCommand> fsm;
+  romea::core::path_following::FSM<romea::core::OneAxleSteeringCommand> fsm;
 
-  fsm.updateMatchedPoints({});
+  fsm.update_matched_points({});
 
-  checkStatus(fsm, romea::core::PathFollowingFSMStatus::FAILED);
+  check_status(fsm, romea::core::path_following::FSMStatus::FAILED);
 }
 
 //-----------------------------------------------------------------------------
 TEST_F(TestFSM, testGoToFollow)
 {
-  romea::core::PathFollowingFSM<romea::core::SkidSteeringCommand> fsm;
+  romea::core::path_following::FSM<romea::core::SkidSteeringCommand> fsm;
 
-  fsm.updateMatchedPoints({firstMatchedPoint});
+  fsm.update_matched_points({first_matched_point});
 
-  checkStatus(fsm, romea::core::PathFollowingFSMStatus::FOLLOW);
-  checkSectionIndex(fsm, 1);
+  check_status(fsm, romea::core::path_following::FSMStatus::FOLLOW);
+  check_section_index(fsm, 1);
 }
 
 //-----------------------------------------------------------------------------
 TEST_F(TestFSM, testStayInFollow)
 {
-  romea::core::PathFollowingFSM<romea::core::SkidSteeringCommand> fsm;
+  romea::core::path_following::FSM<romea::core::SkidSteeringCommand> fsm;
 
-  fsm.updateMatchedPoints({firstMatchedPoint});
-  fsm.updateMatchedPoints({firstMatchedPoint});
+  fsm.update_matched_points({first_matched_point});
+  fsm.update_matched_points({first_matched_point});
 
-  checkStatus(fsm, romea::core::PathFollowingFSMStatus::FOLLOW);
-  checkSectionIndex(fsm, 1);
+  check_status(fsm, romea::core::path_following::FSMStatus::FOLLOW);
+  check_section_index(fsm, 1);
 }
 
 //-----------------------------------------------------------------------------
 TEST_F(TestFSM, testFailedFromFollow)
 {
-  romea::core::PathFollowingFSM<romea::core::TwoAxleSteeringCommand> fsm;
+  romea::core::path_following::FSM<romea::core::TwoAxleSteeringCommand> fsm;
 
-  fsm.updateMatchedPoints({firstMatchedPoint});
-  fsm.updateMatchedPoints({thirdMatchedPoint});
+  fsm.update_matched_points({first_matched_point});
+  fsm.update_matched_points({third_matched_point});
 
-  checkStatus(fsm, romea::core::PathFollowingFSMStatus::FAILED);
-  checkSectionIndex(fsm, std::numeric_limits<size_t>::max());
+  check_status(fsm, romea::core::path_following::FSMStatus::FAILED);
+  check_section_index(fsm, std::numeric_limits<size_t>::max());
 }
 
 //-----------------------------------------------------------------------------
 TEST_F(TestFSM, testGoToStop)
 {
-  romea::core::PathFollowingFSM<romea::core::OneAxleSteeringCommand> fsm;
+  romea::core::path_following::FSM<romea::core::OneAxleSteeringCommand> fsm;
 
-  fsm.updateMatchedPoints({firstMatchedPoint});
-  fsm.updateMatchedPoints({secondMatchedPoint});
+  fsm.update_matched_points({first_matched_point});
+  fsm.update_matched_points({second_matched_point});
 
-  checkStatus(fsm, romea::core::PathFollowingFSMStatus::STOP);
-  checkSectionIndex(fsm, 1);
+  check_status(fsm, romea::core::path_following::FSMStatus::STOP);
+  check_section_index(fsm, 1);
 }
 
 //-----------------------------------------------------------------------------
@@ -132,20 +132,20 @@ TEST_F(TestFSM, testStayInStop)
 {
   romea::core::SkidSteeringCommand command;
   romea::core::SkidSteeringMeasure measure;
-  romea::core::PathFollowingFSM<romea::core::SkidSteeringCommand> fsm;
+  romea::core::path_following::FSM<romea::core::SkidSteeringCommand> fsm;
 
-  fsm.updateMatchedPoints({firstMatchedPoint});
+  fsm.update_matched_points({first_matched_point});
   command.longitudinalSpeed = 1.0;
   measure.longitudinalSpeed = 1.0;
-  fsm.updateOdometry(command, measure);
+  fsm.update_odometry(command, measure);
 
-  fsm.updateMatchedPoints({secondMatchedPoint});
+  fsm.update_matched_points({second_matched_point});
   command.longitudinalSpeed = 0.0;
   measure.longitudinalSpeed = 0.5;
-  fsm.updateOdometry(command, measure);
+  fsm.update_odometry(command, measure);
 
-  checkStatus(fsm, romea::core::PathFollowingFSMStatus::STOP);
-  checkSectionIndex(fsm, 1);
+  check_status(fsm, romea::core::path_following::FSMStatus::STOP);
+  check_section_index(fsm, 1);
 }
 
 //-----------------------------------------------------------------------------
@@ -153,22 +153,22 @@ TEST_F(TestFSM, testGoToChangeDirection)
 {
   romea::core::SkidSteeringCommand command;
   romea::core::SkidSteeringMeasure measure;
-  romea::core::PathFollowingFSM<romea::core::SkidSteeringCommand> fsm;
+  romea::core::path_following::FSM<romea::core::SkidSteeringCommand> fsm;
 
-  fsm.updateMatchedPoints({firstMatchedPoint});
+  fsm.update_matched_points({first_matched_point});
 
   command.longitudinalSpeed = 1.0;
   measure.longitudinalSpeed = 1.0;
-  fsm.updateOdometry(command, measure);
+  fsm.update_odometry(command, measure);
 
-  fsm.updateMatchedPoints({secondMatchedPoint, thirdMatchedPoint});
+  fsm.update_matched_points({second_matched_point, third_matched_point});
 
   command.longitudinalSpeed = 0.0;
   measure.longitudinalSpeed = 0.0;
-  fsm.updateOdometry(command, measure);
+  fsm.update_odometry(command, measure);
 
-  checkStatus(fsm, romea::core::PathFollowingFSMStatus::CHANGE_DIRECTION);
-  checkSectionIndex(fsm, 2);
+  check_status(fsm, romea::core::path_following::FSMStatus::CHANGE_DIRECTION);
+  check_section_index(fsm, 2);
 }
 
 //-----------------------------------------------------------------------------
@@ -176,26 +176,26 @@ TEST_F(TestFSM, testStayInChangeDirectionOneAxleSteering)
 {
   romea::core::OneAxleSteeringCommand command;
   romea::core::OneAxleSteeringMeasure measure;
-  romea::core::PathFollowingFSM<romea::core::OneAxleSteeringCommand> fsm;
+  romea::core::path_following::FSM<romea::core::OneAxleSteeringCommand> fsm;
 
-  fsm.updateMatchedPoints({firstMatchedPoint});
+  fsm.update_matched_points({first_matched_point});
 
   command.longitudinalSpeed = 1.0;
   measure.longitudinalSpeed = 1.0;
-  fsm.updateOdometry(command, measure);
+  fsm.update_odometry(command, measure);
 
-  fsm.updateMatchedPoints({secondMatchedPoint, thirdMatchedPoint});
+  fsm.update_matched_points({second_matched_point, third_matched_point});
 
   command.longitudinalSpeed = 0.0;
   measure.longitudinalSpeed = 0.0;
-  fsm.updateOdometry(command, measure);
+  fsm.update_odometry(command, measure);
 
   command.steeringAngle = 1.0;
   measure.steeringAngle = 0.0;
-  fsm.updateOdometry(command, measure);
+  fsm.update_odometry(command, measure);
 
-  checkStatus(fsm, romea::core::PathFollowingFSMStatus::CHANGE_DIRECTION);
-  checkSectionIndex(fsm, 2);
+  check_status(fsm, romea::core::path_following::FSMStatus::CHANGE_DIRECTION);
+  check_section_index(fsm, 2);
 }
 
 //-----------------------------------------------------------------------------
@@ -203,26 +203,26 @@ TEST_F(TestFSM, testGoToFollowOneAxleSteering)
 {
   romea::core::OneAxleSteeringCommand command;
   romea::core::OneAxleSteeringMeasure measure;
-  romea::core::PathFollowingFSM<romea::core::OneAxleSteeringCommand> fsm;
+  romea::core::path_following::FSM<romea::core::OneAxleSteeringCommand> fsm;
 
-  fsm.updateMatchedPoints({firstMatchedPoint});
+  fsm.update_matched_points({first_matched_point});
 
   command.longitudinalSpeed = 1.0;
   measure.longitudinalSpeed = 1.0;
-  fsm.updateOdometry(command, measure);
+  fsm.update_odometry(command, measure);
 
-  fsm.updateMatchedPoints({secondMatchedPoint, thirdMatchedPoint});
+  fsm.update_matched_points({second_matched_point, third_matched_point});
 
   command.longitudinalSpeed = 0.0;
   measure.longitudinalSpeed = 0.0;
-  fsm.updateOdometry(command, measure);
+  fsm.update_odometry(command, measure);
 
   command.steeringAngle = 1.0;
   measure.steeringAngle = 1.0;
-  fsm.updateOdometry(command, measure);
+  fsm.update_odometry(command, measure);
 
-  checkStatus(fsm, romea::core::PathFollowingFSMStatus::FOLLOW);
-  checkSectionIndex(fsm, 2);
+  check_status(fsm, romea::core::path_following::FSMStatus::FOLLOW);
+  check_section_index(fsm, 2);
 }
 
 //-----------------------------------------------------------------------------
@@ -230,28 +230,28 @@ TEST_F(TestFSM, testStayInChangeDirectionTwoAxleSteering)
 {
   romea::core::TwoAxleSteeringCommand command;
   romea::core::TwoAxleSteeringMeasure measure;
-  romea::core::PathFollowingFSM<romea::core::TwoAxleSteeringCommand> fsm;
+  romea::core::path_following::FSM<romea::core::TwoAxleSteeringCommand> fsm;
 
-  fsm.updateMatchedPoints({firstMatchedPoint});
+  fsm.update_matched_points({first_matched_point});
 
   command.longitudinalSpeed = 1.0;
   measure.longitudinalSpeed = 1.0;
-  fsm.updateOdometry(command, measure);
+  fsm.update_odometry(command, measure);
 
-  fsm.updateMatchedPoints({secondMatchedPoint, thirdMatchedPoint});
+  fsm.update_matched_points({second_matched_point, third_matched_point});
 
   command.longitudinalSpeed = 0.0;
   measure.longitudinalSpeed = 0.0;
-  fsm.updateOdometry(command, measure);
+  fsm.update_odometry(command, measure);
 
   command.frontSteeringAngle = 1.0;
   command.rearSteeringAngle = -1.0;
   measure.frontSteeringAngle = 0.0;
   measure.rearSteeringAngle = 0.0;
-  fsm.updateOdometry(command, measure);
+  fsm.update_odometry(command, measure);
 
-  checkStatus(fsm, romea::core::PathFollowingFSMStatus::CHANGE_DIRECTION);
-  checkSectionIndex(fsm, 2);
+  check_status(fsm, romea::core::path_following::FSMStatus::CHANGE_DIRECTION);
+  check_section_index(fsm, 2);
 }
 
 //-----------------------------------------------------------------------------
@@ -259,28 +259,28 @@ TEST_F(TestFSM, testGoToFollowTwoAxleSteering)
 {
   romea::core::TwoAxleSteeringCommand command;
   romea::core::TwoAxleSteeringMeasure measure;
-  romea::core::PathFollowingFSM<romea::core::TwoAxleSteeringCommand> fsm;
+  romea::core::path_following::FSM<romea::core::TwoAxleSteeringCommand> fsm;
 
-  fsm.updateMatchedPoints({firstMatchedPoint});
+  fsm.update_matched_points({first_matched_point});
 
   command.longitudinalSpeed = 1.0;
   measure.longitudinalSpeed = 1.0;
-  fsm.updateOdometry(command, measure);
+  fsm.update_odometry(command, measure);
 
-  fsm.updateMatchedPoints({secondMatchedPoint, thirdMatchedPoint});
+  fsm.update_matched_points({second_matched_point, third_matched_point});
 
   command.longitudinalSpeed = 0.0;
   measure.longitudinalSpeed = 0.0;
-  fsm.updateOdometry(command, measure);
+  fsm.update_odometry(command, measure);
 
   command.frontSteeringAngle = 1.0;
   command.rearSteeringAngle = -1.0;
   measure.frontSteeringAngle = 1.0;
   measure.rearSteeringAngle = -1.0;
-  fsm.updateOdometry(command, measure);
+  fsm.update_odometry(command, measure);
 
-  checkStatus(fsm, romea::core::PathFollowingFSMStatus::FOLLOW);
-  checkSectionIndex(fsm, 2);
+  check_status(fsm, romea::core::path_following::FSMStatus::FOLLOW);
+  check_section_index(fsm, 2);
 }
 
 //-----------------------------------------------------------------------------
@@ -288,22 +288,22 @@ TEST_F(TestFSM, testGoToFinish)
 {
   romea::core::TwoAxleSteeringCommand command;
   romea::core::TwoAxleSteeringMeasure measure;
-  romea::core::PathFollowingFSM<romea::core::TwoAxleSteeringCommand> fsm;
+  romea::core::path_following::FSM<romea::core::TwoAxleSteeringCommand> fsm;
 
-  fsm.updateMatchedPoints({firstMatchedPoint});
+  fsm.update_matched_points({first_matched_point});
 
   command.longitudinalSpeed = 1.0;
   measure.longitudinalSpeed = 1.0;
-  fsm.updateOdometry(command, measure);
+  fsm.update_odometry(command, measure);
 
-  fsm.updateMatchedPoints({secondMatchedPoint});
+  fsm.update_matched_points({second_matched_point});
 
   command.longitudinalSpeed = 0.0;
   measure.longitudinalSpeed = 0.0;
-  fsm.updateOdometry(command, measure);
+  fsm.update_odometry(command, measure);
 
-  checkStatus(fsm, romea::core::PathFollowingFSMStatus::FINISH);
-  checkSectionIndex(fsm, std::numeric_limits<size_t>::max());
+  check_status(fsm, romea::core::path_following::FSMStatus::FINISH);
+  check_section_index(fsm, std::numeric_limits<size_t>::max());
 }
 
 //-----------------------------------------------------------------------------

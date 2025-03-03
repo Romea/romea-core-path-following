@@ -17,17 +17,17 @@ find_package(BLAS REQUIRED)
 find_package(nlohmann_json 3.7 REQUIRED)
 
 add_library(${PROJECT_NAME} SHARED
-  src/PathFollowingLogs.cpp
-  src/PathFollowingFSM.cpp
-  src/PathFollowingSetPoint.cpp
-  src/PathFollowingUtils.cpp
-  src/lateral_control/LateralControlBackStepping.cpp
-  src/lateral_control/LateralControlClassic.cpp
-  src/lateral_control/LateralControlPredictive.cpp
-  src/longitudinal_control/LongitudinalControlClassic.cpp
-  src/sliding_observer/SlidingObserverExtendedCinematicLyapunov.cpp
-  src/sliding_observer/SlidingObserverExtendedCinematicLinearTangent.cpp
-  src/PathFollowingPlatoon.cpp
+  src/logs.cpp
+  src/fsm.cpp
+  src/setpoint.cpp
+  src/utils.cpp
+  src/external_control/platoon.cpp
+  src/lateral_control/back_stepping.cpp
+  src/lateral_control/classic.cpp
+  src/lateral_control/predictive.cpp
+  src/longitudinal_control/classic.cpp
+  src/sliding_observer/extended/cinematic_lyapunov.cpp
+  src/sliding_observer/extended/cinematic_linear_tangent.cpp
 )
 
 target_include_directories(${PROJECT_NAME} PUBLIC

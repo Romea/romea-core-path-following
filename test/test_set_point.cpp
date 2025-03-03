@@ -22,7 +22,7 @@
 #include "gtest/gtest.h"
 
 // romea
-#include "romea_core_path_following/PathFollowingSetPoint.hpp"
+#include "romea_core_path_following/setpoint.hpp"
 
 class TestEvaluateSetPoint : public ::testing::Test
 {
@@ -32,37 +32,38 @@ public:
 
   double evaluateLinearSpeed()
   {
-    return romea::core::evaluateSetPoint(desiredSetPoint, pathMatchedPoint).linearSpeed;
+    return romea::core::path_following::evaluate_setpoint(
+      desiredSetPoint, pathMatchedPoint).linear_speed;
   }
 
-  romea::core::PathFollowingSetPoint desiredSetPoint;
+  romea::core::path_following::SetPoint desiredSetPoint;
   romea::core::PathMatchedPoint2D pathMatchedPoint;
 };
 
 //-----------------------------------------------------------------------------
 TEST_F(TestEvaluateSetPoint, testZeroSpeed) {
-  desiredSetPoint.linearSpeed = std::numeric_limits<double>::quiet_NaN();
+  desiredSetPoint.linear_speed = std::numeric_limits<double>::quiet_NaN();
   pathMatchedPoint.desiredSpeed = std::numeric_limits<double>::quiet_NaN();
   EXPECT_DOUBLE_EQ(evaluateLinearSpeed(), 0);
 }
 
 //-----------------------------------------------------------------------------
 TEST_F(TestEvaluateSetPoint, testLinearSpeedIsUserLinearSpeed) {
-  desiredSetPoint.linearSpeed = std::numeric_limits<double>::quiet_NaN();
+  desiredSetPoint.linear_speed = std::numeric_limits<double>::quiet_NaN();
   pathMatchedPoint.desiredSpeed = 1.0;
   EXPECT_DOUBLE_EQ(evaluateLinearSpeed(), 1.0);
 }
 
 //-----------------------------------------------------------------------------
 TEST_F(TestEvaluateSetPoint, testLinearSpeedIsPathSpeed) {
-  desiredSetPoint.linearSpeed = std::numeric_limits<double>::quiet_NaN();
+  desiredSetPoint.linear_speed = std::numeric_limits<double>::quiet_NaN();
   pathMatchedPoint.desiredSpeed = -2.0;
   EXPECT_DOUBLE_EQ(evaluateLinearSpeed(), -2.0);
 }
 
 //-----------------------------------------------------------------------------
 TEST_F(TestEvaluateSetPoint, testLinearSpeedIsSignedUserSpeed) {
-  desiredSetPoint.linearSpeed = 1.0;
+  desiredSetPoint.linear_speed = 1.0;
   pathMatchedPoint.desiredSpeed = -2.0;
   EXPECT_DOUBLE_EQ(evaluateLinearSpeed(), -1.0);
 }
