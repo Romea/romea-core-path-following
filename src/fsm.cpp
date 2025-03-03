@@ -100,14 +100,13 @@ void FSM<CommandType>::follow_callback_()
   if (!matched_point.has_value()) {
     set_status(FSMStatus::FAILED);
     current_section_index_ = std::numeric_limits<size_t>::max();
-  } else if (stop_at_the_end_ &&
-    matched_point->frenetPose.curvilinearAbscissa >=
-    matched_point->sectionMaximalCurvilinearAbscissa)
+  } else if (
+    matchedPoint->frenetPose.curvilinearAbscissa >=
+    matchedPoint->sectionMaximalCurvilinearAbscissa)
   {
-    if (stop_at_the_end_) {
-      set_status(FSMStatus::STOP);
-    }
+    set_status(PathFollowingFSMStatus::STOP);
   }
+
 }
 
 //-----------------------------------------------------------------------------
@@ -115,13 +114,16 @@ template<typename CommandType>
 void FSM<CommandType>::stop_callback_()
 {
   if (std::abs(feedback_.longitudinalSpeed) < 0.01) {
-    if (findMatchedPointBySectionIndex(matched_points_, current_section_index_ + 1).has_value()) {
-      set_status(FSMStatus::CHANGE_DIRECTION);
-      current_section_index_++;
+    if (findMatchedPointBySectionIndex(matchedPoints_, currentSectionIndex_ + 1).has_value()) {
+      setStatus(PathFollowingFSMStatus::CHANGE_DIRECTION);
+      currentSectionIndex_++;
+    } else if (stop_at_the_end_) {
+      currentSectionIndex_ = std::numeric_limits<size_t>::max();
+      set_status(PathFollowingFSMStatus::FINISH);
     } else {
-      current_section_index_ = std::numeric_limits<size_t>::max();
-      set_status(FSMStatus::FINISH);
+      set_status(PathFollowingFSMStatus::INIT);
     }
+
   }
 }
 
@@ -139,7 +141,8 @@ template<>
 void FSM<TwoAxleSteeringCommand>::change_direction_callback_()
 {
   // is_rear_steering_command_enabled_
-  if (std::abs(command_.frontSteeringAngle - feedback_.frontSteeringAngle) < 0.05 &&
+  if (
+    std::abs(command_.frontSteeringAngle - feedback_.frontSteeringAngle) < 0.05 &&
     std::abs(command_.rearSteeringAngle - feedback_.rearSteeringAngle) < 0.05)
   {
     set_status(FSMStatus::FOLLOW);
