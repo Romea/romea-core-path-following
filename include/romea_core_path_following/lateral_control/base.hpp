@@ -12,29 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-
 #ifndef ROMEA_CORE_PATH_FOLLOWING__LATERAL_CONTROL__BASE_HPP_
 #define ROMEA_CORE_PATH_FOLLOWING__LATERAL_CONTROL__BASE_HPP_
 
-// std
-#include <memory>
-
 // romea
-#include "romea_core_common/concurrency/SharedVariable.hpp"
-#include "romea_core_common/geometry/Twist2D.hpp"
-#include "romea_core_common/log/SimpleFileLogger.hpp"
-#include "romea_core_mobile_base/info/MobileBaseInertia.hpp"
-#include "romea_core_path/PathFrenetPose2D.hpp"
-#include "romea_core_path/PathPosture2D.hpp"
+#include <romea_core_common/concurrency/SharedVariable.hpp>
+#include <romea_core_common/geometry/Twist2D.hpp>
+#include <romea_core_common/log/SimpleFileLogger.hpp>
+#include <romea_core_mobile_base/info/MobileBaseInertia.hpp>
+#include <romea_core_path/PathFrenetPose2D.hpp>
+#include <romea_core_path/PathPosture2D.hpp>
+
+// local
 #include "romea_core_path_following/logs.hpp"
 #include "romea_core_path_following/traits.hpp"
 
-
-namespace romea
-{
-namespace core
-{
-namespace path_following
+namespace romea::core::path_following
 {
 
 template<typename CommandType, typename SlidingsType>
@@ -47,8 +40,6 @@ public:
   using CommandLimits = typename Traits<CommandType>::Limits;
 
 public:
-  LateralControlBase() {}
-
   virtual ~LateralControlBase() = default;
 
   virtual CommandType compute_command(
@@ -65,8 +56,6 @@ public:
   virtual void reset() {}
 };
 
-}  // namespace path_following
-}  // namespace core
-}  // namespace romea
+}  // namespace romea::core::path_following
 
 #endif  // ROMEA_CORE_PATH_FOLLOWING__LATERAL_CONTROL__BASE_HPP_
