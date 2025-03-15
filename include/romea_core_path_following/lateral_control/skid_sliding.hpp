@@ -18,7 +18,7 @@
 
 // romea
 #include "romea_core_path_following/lateral_control/base.hpp"
-#include "romea_core_path_following/sliding_observer/extended/base.hpp"
+#include "romea_core_path_following/sliding_observer/skid_backstepping.hpp"
 
 namespace romea::core::path_following
 {
@@ -30,7 +30,7 @@ class LateralControlSkidSliding
 
 template<>
 class LateralControlSkidSliding<SkidSteeringCommand>
-  : public LateralControlBase<SkidSteeringCommand, WildcardSlidings>
+  : public LateralControlBase<SkidSteeringCommand, SkidSlidingParameters>
 {
 public:
   struct Gains
@@ -42,6 +42,7 @@ public:
   struct Parameters
   {
     Gains gains;
+    double maximal_target_course;
   };
 
 public:
@@ -58,7 +59,7 @@ public:
     const PathPosture2D & path_posture,
     const double & future_path_curvature,
     const OdometryMeasure & odometry_measure,
-    const WildcardSlidings & slidings = {}) override;
+    const SkidSlidingParameters & slidings = {}) override;
 
   void log(SimpleFileLogger & logger) override;
 
@@ -66,6 +67,7 @@ public:
 
 private:
   double target_course_;
+  double maximal_target_course_;
 };
 
 

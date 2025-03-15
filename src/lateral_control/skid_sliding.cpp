@@ -28,7 +28,9 @@ LateralControlSkidSliding<SkidSteeringCommand>::LateralControlSkidSliding(
   double /*wheelbase*/,
   const MobileBaseInertia & /*inertia*/,
   const Parameters & parameters)
-: gains(parameters.gains), target_course_(0)
+: gains(parameters.gains),
+  target_course_(0),
+  maximal_target_course_(parameters.maximal_target_course)
 {
 }
 
@@ -39,7 +41,7 @@ SkidSteeringCommand LateralControlSkidSliding<SkidSteeringCommand>::compute_comm
   const PathPosture2D & path_posture,
   const double & /*future_path_curvature*/,
   const OdometryMeasure & odometry_measure,
-  const WildcardSlidings & /*slidings*/)
+  const SkidSlidingParameters & slidings)
 {
   auto cur_gains = gains.load();
 
@@ -48,11 +50,12 @@ SkidSteeringCommand LateralControlSkidSliding<SkidSteeringCommand>::compute_comm
     frenet_pose.courseDeviation,
     path_posture.curvature,
     odometry_measure.longitudinalSpeed,
-    0.,
-    0.,
-    0.,
-    get_maximal_angular_speed(command_limits),
+    slidings.linear_speed_disturbance,
+    slidings.angular_speed_disturbance,
+    slidings.slip_angle,
     set_point.lateral_deviation,
+    get_maximal_angular_speed(command_limits),
+    maximal_target_course_,
     cur_gains.lateral_kp,
     cur_gains.course_kp,
     target_course_);

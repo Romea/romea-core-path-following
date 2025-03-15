@@ -20,6 +20,7 @@
 #include <memory>
 #include <utility>
 #include <vector>
+#include <iostream>
 
 // romea
 #include "romea_core_common/geometry/Twist2D.hpp"
@@ -243,6 +244,7 @@ public:
         frenet_pose, path_posture, odometry_measure, filtered_twist);
     } else {
       // convert slidings
+      std::cerr << "no sliding converter available for the current config\n";
     }
 
     auto command = this->lateral_control_->compute_command(
