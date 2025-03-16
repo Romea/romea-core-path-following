@@ -14,36 +14,32 @@
 
 #include <romea_core_common/math/Algorithm.hpp>
 #include <romea_core_mobile_base/kinematic/skid_steering/SkidSteeringCommand.hpp>
-#include <romea_core_path_following/sliding_observer/picard_skid_backstepping.hpp>
+#include <romea_core_path_following/sliding_observer/skid/picard_lyapunov.hpp>
 
 namespace romea::core::path_following
 {
 
 template<typename CommandType>
-SlidingObserverPicardSkidBackstepping<CommandType>::SlidingObserverPicardSkidBackstepping(
+SlidingObserverPicardSkidLyapunov<CommandType>::SlidingObserverPicardSkidLyapunov(
   double sampling_period, const Parameters & parameters)
 : observer_(sampling_period, parameters)
 {
 }
 
 template<typename CommandType>
-SkidSlidingParameters SlidingObserverPicardSkidBackstepping<CommandType>::compute_slidings(
+SkidSlidingParameters SlidingObserverPicardSkidLyapunov<CommandType>::compute_slidings(
   const PathFrenetPose2D & frenet_pose,
   const PathPosture2D & path_posture,
   const OdometryMeasure & odometry_measure,
   const Twist2D & /* filtered_twist */)
 {
-  observer_.update(
-    frenet_pose.lateralDeviation,
-    sign(odometry_measure.longitudinalSpeed) * frenet_pose.courseDeviation,
-    path_posture.curvature,
-    odometry_measure.longitudinalSpeed,
-    odometry_measure.angularSpeed,
-    frenet_pose.curvilinearAbscissa);
+  const double linear_speed = odometry_measure.longitudinalSpeed;
+  const auto & path_pos = path_posture.position;
+  double x = path_pos.x() - std::sin(path_posture.course) * frenet_pose.lateralDeviation;
+  double y = path_pos.y() + std::cos(path_posture.course) * frenet_pose.lateralDeviation;
+  double course = path_posture.course + sign(linear_speed) * frenet_pose.courseDeviation;
 
-  // if (frenet_pose.curvilinearAbscissa < 5) {
-  //   observer_.init_observer_(frenet_pose.lateralDeviation, frenet_pose.courseDeviation);
-  // }
+  observer_.update(x, y, course, linear_speed, odometry_measure.angularSpeed);
 
   return {
     observer_.getBetaR(),
@@ -53,7 +49,7 @@ SkidSlidingParameters SlidingObserverPicardSkidBackstepping<CommandType>::comput
 }
 
 template<typename CommandType>
-void SlidingObserverPicardSkidBackstepping<CommandType>::log(SimpleFileLogger & logger)
+void SlidingObserverPicardSkidLyapunov<CommandType>::log(SimpleFileLogger & logger)
 {
   logger.addEntry("slip_angle", observer_.getBetaR());
   logger.addEntry("lin_vel_disturb", observer_.getDotEpsilonSP());
@@ -61,11 +57,11 @@ void SlidingObserverPicardSkidBackstepping<CommandType>::log(SimpleFileLogger & 
 }
 
 template<typename CommandType>
-void SlidingObserverPicardSkidBackstepping<CommandType>::reset()
+void SlidingObserverPicardSkidLyapunov<CommandType>::reset()
 {
   observer_.reset();
 }
 
-template class SlidingObserverPicardSkidBackstepping<SkidSteeringCommand>;
+template class SlidingObserverPicardSkidLyapunov<SkidSteeringCommand>;
 
 }  // namespace romea::core::path_following

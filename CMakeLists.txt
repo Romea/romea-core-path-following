@@ -30,7 +30,8 @@ add_library(${PROJECT_NAME} SHARED
   src/longitudinal_control/classic.cpp
   src/sliding_observer/extended/cinematic_lyapunov.cpp
   src/sliding_observer/extended/cinematic_linear_tangent.cpp
-  src/sliding_observer/picard_skid_backstepping.cpp
+  src/sliding_observer/skid/picard_backstepping.cpp
+  src/sliding_observer/skid/picard_lyapunov.cpp
 )
 
 target_include_directories(${PROJECT_NAME} PUBLIC

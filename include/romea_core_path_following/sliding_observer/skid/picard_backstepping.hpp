@@ -12,26 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef ROMEA_CORE_PATH_FOLLOWING__SLIDING_OBSERVER__PICARD_SKID_BACKSTEPPING_HPP_
-#define ROMEA_CORE_PATH_FOLLOWING__SLIDING_OBSERVER__PICARD_SKID_BACKSTEPPING_HPP_
+#ifndef ROMEA_CORE_PATH_FOLLOWING__SLIDING_OBSERVER__SKID__PICARD_BACKSTEPPING_HPP_
+#define ROMEA_CORE_PATH_FOLLOWING__SLIDING_OBSERVER__SKID__PICARD_BACKSTEPPING_HPP_
 
 // romea
 #include "romea_core_control/observer/SlidingObserverPicardSkidBackstepping.hpp"
-#include "romea_core_path_following/sliding_observer/base.hpp"
+#include "romea_core_path_following/sliding_observer/skid/base.hpp"
 
 namespace romea::core::path_following
 {
 
-struct SkidSlidingParameters
-{
-  double slip_angle;
-  double linear_speed_disturbance;
-  double angular_speed_disturbance;
-};
-
 template<typename CommandType>
-class SlidingObserverPicardSkidBackstepping
-: public SlidingObserverBase<CommandType, SkidSlidingParameters>
+class SlidingObserverPicardSkidBackstepping : public SlidingObserverSkid<CommandType>
 {
 public:
   using OdometryMeasure = typename Traits<CommandType>::Measure;
