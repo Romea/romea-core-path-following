@@ -15,12 +15,11 @@
 #ifndef ROMEA_CORE_PATH_FOLLOWING__PATHFOLLOWING_HPP_
 #define ROMEA_CORE_PATH_FOLLOWING__PATHFOLLOWING_HPP_
 
-
 // std
+#include <iostream>
 #include <memory>
 #include <utility>
 #include <vector>
-#include <iostream>
 
 // romea
 #include "romea_core_common/geometry/Twist2D.hpp"
@@ -29,10 +28,9 @@
 #include "romea_core_path/PathPosture2D.hpp"
 #include "romea_core_path_following/fsm.hpp"
 #include "romea_core_path_following/logs.hpp"
-#include "romea_core_path_following/traits.hpp"
 #include "romea_core_path_following/setpoint.hpp"
+#include "romea_core_path_following/traits.hpp"
 #include "romea_core_path_following/utils.hpp"
-
 
 namespace romea
 {
@@ -50,25 +48,15 @@ public:
   using OdometryMeasure = typename Traits<CommandType>::Measure;
   using CommandLimits = typename Traits<CommandType>::Limits;
 
-  PathFollowingBase()
-  : logger_(nullptr) {}
+  PathFollowingBase() : logger_(nullptr) {}
 
   virtual ~PathFollowingBase() = default;
 
-  virtual void register_logger(std::shared_ptr<Logger> logger)
-  {
-    logger_ = logger;
-  }
+  virtual void register_logger(std::shared_ptr<Logger> logger) { logger_ = logger; }
 
-  virtual void set_stop_at_the_end(bool value)
-  {
-    fsm_.set_stop_at_the_end(value);
-  }
+  virtual void set_stop_at_the_end(bool value) { fsm_.set_stop_at_the_end(value); }
 
-  virtual FSMStatus get_status()
-  {
-    return fsm_.get_status();
-  }
+  virtual FSMStatus get_status() { return fsm_.get_status(); }
 
   virtual std::optional<CommandType> compute_command(
     const SetPoint & user_setpoint,
@@ -79,20 +67,20 @@ public:
   {
     fsm_.update_matched_points(matched_points);
 
-    if (this->fsm_.get_status() == FSMStatus::FAILED ||
-      this->fsm_.get_status() == FSMStatus::FINISH)
-    {
+    if (
+      this->fsm_.get_status() == FSMStatus::FAILED ||
+      this->fsm_.get_status() == FSMStatus::FINISH) {
       return {};
     }
 
-    auto matched_point = *findMatchedPointBySectionIndex(
-      matched_points, fsm_.get_current_section_index());
+    auto matched_point =
+      *findMatchedPointBySectionIndex(matched_points, fsm_.get_current_section_index());
 
     auto setpoint = evaluate_setpoint(user_setpoint, matched_point);
 
-    if (this->fsm_.get_status() == FSMStatus::STOP ||
-      this->fsm_.get_status() == FSMStatus::CHANGE_DIRECTION)
-    {
+    if (
+      this->fsm_.get_status() == FSMStatus::STOP ||
+      this->fsm_.get_status() == FSMStatus::CHANGE_DIRECTION) {
       setpoint.linear_speed = 0;
     }
 
@@ -117,11 +105,10 @@ public:
         filtered_twist);
     }
 
-    if constexpr (std::is_same_v<CommandType, core::SkidSteeringCommand>)
-    {
-      if (this->fsm_.get_status() == FSMStatus::STOP ||
-        this->fsm_.get_status() == FSMStatus::CHANGE_DIRECTION)
-      {
+    if constexpr (std::is_same_v<CommandType, core::SkidSteeringCommand>) {
+      if (
+        this->fsm_.get_status() == FSMStatus::STOP ||
+        this->fsm_.get_status() == FSMStatus::CHANGE_DIRECTION) {
         command.longitudinalSpeed = 0;
         command.angularSpeed = 0;
       }
@@ -149,7 +136,7 @@ protected:
 
 template<typename LateralControl, typename LongitudinalControl>
 class PathFollowingWithoutSlidingObserver
-  : public PathFollowingBase<typename LateralControl::Command>
+: public PathFollowingBase<typename LateralControl::Command>
 {
 public:
   using CommandType = typename LateralControl::Command;
@@ -160,8 +147,7 @@ public:
   PathFollowingWithoutSlidingObserver(
     std::shared_ptr<LateralControl> lateral_control,
     std::shared_ptr<LongitudinalControl> longitudinal_control)
-  : lateral_control_(lateral_control),
-    longitudinal_control_(longitudinal_control)
+  : lateral_control_(lateral_control), longitudinal_control_(longitudinal_control)
   {
   }
 
@@ -208,8 +194,7 @@ public:
 };
 
 template<typename LateralControl, typename LongitudinalControl, typename SlidingObserver>
-class PathFollowingWithSlidingObserver
-  : public PathFollowingBase<typename LateralControl::Command>
+class PathFollowingWithSlidingObserver : public PathFollowingBase<typename LateralControl::Command>
 {
 public:
   using CommandType = typename LateralControl::Command;
@@ -248,8 +233,13 @@ public:
     }
 
     auto command = this->lateral_control_->compute_command(
-      setpoint, command_limits, frenet_pose, path_posture,
-      future_curvature, odometry_measure, slidings);
+      setpoint,
+      command_limits,
+      frenet_pose,
+      path_posture,
+      future_curvature,
+      odometry_measure,
+      slidings);
 
     command.longitudinalSpeed = this->longitudinal_control_->compute_linear_speed(
       setpoint, frenet_pose, path_posture, odometry_measure, filtered_twist);
@@ -267,7 +257,6 @@ public:
       sliding_observer_->log(*this->logger_);
       log(*this->logger_, command);
     }
-
     return command;
   }
 
@@ -285,9 +274,7 @@ private:
   std::shared_ptr<SlidingObserver> sliding_observer_;
 };
 
-
-class OneAxleSteeringEquivalence
-  : public PathFollowingBase<SkidSteeringCommand>
+class OneAxleSteeringEquivalence : public PathFollowingBase<SkidSteeringCommand>
 {
 public:
   OneAxleSteeringEquivalence(
@@ -312,9 +299,13 @@ public:
     const Twist2D & filtered_twist) override
   {
     OneAxleSteeringCommand command = path_following_->compute_command(
-      setpoint, to_one_axle_steering_command_limits(command_limits),
-      frenet_pose, path_posture, future_curvature,
-      to_one_axle_steering_measure(odometry_measure, wheelbase_), filtered_twist);
+      setpoint,
+      to_one_axle_steering_command_limits(command_limits),
+      frenet_pose,
+      path_posture,
+      future_curvature,
+      to_one_axle_steering_measure(odometry_measure, wheelbase_),
+      filtered_twist);
 
     if (logger_ != nullptr) {
       log(*this->logger_, odometry_measure);
@@ -324,15 +315,11 @@ public:
     return to_skid_steering_command(command, wheelbase_);
   }
 
-  void reset() override
-  {
-    path_following_->reset();
-  }
+  void reset() override { path_following_->reset(); }
 
   const double wheelbase_ = 1.2;
   std::unique_ptr<PathFollowingBase<OneAxleSteeringCommand>> path_following_;
 };
-
 
 }  // namespace path_following
 }  // namespace core

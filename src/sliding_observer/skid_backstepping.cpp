@@ -31,18 +31,14 @@ SkidSlidingParameters SlidingObserverSkidBackstepping<CommandType>::compute_slid
   const PathFrenetPose2D & frenet_pose,
   const PathPosture2D & path_posture,
   const OdometryMeasure & odometry_measure,
-  const Twist2D & filtered_twist)
+  const Twist2D & /* filtered_twist */)
 {
-  const double linear_speed = filtered_twist.linearSpeeds.x();
-
   observer_.update(
     frenet_pose.lateralDeviation,
-    sign(linear_speed) * frenet_pose.courseDeviation,
+    sign(odometry_measure.longitudinalSpeed) * frenet_pose.courseDeviation,
     path_posture.curvature,
-    odometry_measure.longitudinalSpeed,  // use odom value to include controller error
-    odometry_measure.angularSpeed,       // not used?
-    0.,                                  // S_x, not used, I don't know what it references
-    0.,                                  // S_y, not used, same thing
+    odometry_measure.longitudinalSpeed,
+    odometry_measure.angularSpeed,
     frenet_pose.curvilinearAbscissa);
 
   // if (frenet_pose.curvilinearAbscissa < 5) {
