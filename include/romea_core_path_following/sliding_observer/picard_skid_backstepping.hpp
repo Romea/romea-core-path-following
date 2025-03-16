@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef ROMEA_CORE_PATH_FOLLOWING__SLIDING_OBSERVER__SKID_BACKSTEPPING_HPP_
-#define ROMEA_CORE_PATH_FOLLOWING__SLIDING_OBSERVER__SKID_BACKSTEPPING_HPP_
+#ifndef ROMEA_CORE_PATH_FOLLOWING__SLIDING_OBSERVER__PICARD_SKID_BACKSTEPPING_HPP_
+#define ROMEA_CORE_PATH_FOLLOWING__SLIDING_OBSERVER__PICARD_SKID_BACKSTEPPING_HPP_
 
 // romea
-#include "romea_core_control/observer/SlidingObserverBacksteppingSkid.hpp"
+#include "romea_core_control/observer/SlidingObserverPicardSkidBackstepping.hpp"
 #include "romea_core_path_following/sliding_observer/base.hpp"
 
 namespace romea::core::path_following
@@ -30,16 +30,16 @@ struct SkidSlidingParameters
 };
 
 template<typename CommandType>
-class SlidingObserverSkidBackstepping
+class SlidingObserverPicardSkidBackstepping
 : public SlidingObserverBase<CommandType, SkidSlidingParameters>
 {
 public:
   using OdometryMeasure = typename Traits<CommandType>::Measure;
-  using Observer = core::SlidingObserversBacksteppingSkid;
+  using Observer = core::SlidingObserversPicardSkidBackstepping;
   using Parameters = Observer::Parameters;
 
 public:
-  SlidingObserverSkidBackstepping(double samplingPeriod, const Parameters & parameters);
+  SlidingObserverPicardSkidBackstepping(double samplingPeriod, const Parameters & parameters);
 
   SkidSlidingParameters compute_slidings(
     const PathFrenetPose2D & frenet_pose,

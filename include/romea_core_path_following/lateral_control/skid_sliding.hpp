@@ -18,7 +18,7 @@
 
 // romea
 #include "romea_core_path_following/lateral_control/base.hpp"
-#include "romea_core_path_following/sliding_observer/skid_backstepping.hpp"
+#include "romea_core_path_following/sliding_observer/picard_skid_backstepping.hpp"
 
 namespace romea::core::path_following
 {

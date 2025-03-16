@@ -14,20 +14,20 @@
 
 #include <romea_core_common/math/Algorithm.hpp>
 #include <romea_core_mobile_base/kinematic/skid_steering/SkidSteeringCommand.hpp>
-#include <romea_core_path_following/sliding_observer/skid_backstepping.hpp>
+#include <romea_core_path_following/sliding_observer/picard_skid_backstepping.hpp>
 
 namespace romea::core::path_following
 {
 
 template<typename CommandType>
-SlidingObserverSkidBackstepping<CommandType>::SlidingObserverSkidBackstepping(
+SlidingObserverPicardSkidBackstepping<CommandType>::SlidingObserverPicardSkidBackstepping(
   double sampling_period, const Parameters & parameters)
 : observer_(sampling_period, parameters)
 {
 }
 
 template<typename CommandType>
-SkidSlidingParameters SlidingObserverSkidBackstepping<CommandType>::compute_slidings(
+SkidSlidingParameters SlidingObserverPicardSkidBackstepping<CommandType>::compute_slidings(
   const PathFrenetPose2D & frenet_pose,
   const PathPosture2D & path_posture,
   const OdometryMeasure & odometry_measure,
@@ -53,7 +53,7 @@ SkidSlidingParameters SlidingObserverSkidBackstepping<CommandType>::compute_slid
 }
 
 template<typename CommandType>
-void SlidingObserverSkidBackstepping<CommandType>::log(SimpleFileLogger & logger)
+void SlidingObserverPicardSkidBackstepping<CommandType>::log(SimpleFileLogger & logger)
 {
   logger.addEntry("slip_angle", observer_.getBetaR());
   logger.addEntry("lin_vel_disturb", observer_.getDotEpsilonSP());
@@ -61,11 +61,11 @@ void SlidingObserverSkidBackstepping<CommandType>::log(SimpleFileLogger & logger
 }
 
 template<typename CommandType>
-void SlidingObserverSkidBackstepping<CommandType>::reset()
+void SlidingObserverPicardSkidBackstepping<CommandType>::reset()
 {
   observer_.reset();
 }
 
-template class SlidingObserverSkidBackstepping<SkidSteeringCommand>;
+template class SlidingObserverPicardSkidBackstepping<SkidSteeringCommand>;
 
 }  // namespace romea::core::path_following
