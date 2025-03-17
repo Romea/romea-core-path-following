@@ -14,16 +14,16 @@
 
 // romea
 #include <boost/atomic/detail/futex.hpp>
-#include <romea_core_control/command/FollowTrajectorySkidSliding.hpp>
+#include <romea_core_control/command/FollowTrajectorySkidBackstepping.hpp>
 
 // local
-#include "romea_core_path_following/lateral_control/skid_sliding.hpp"
+#include "romea_core_path_following/lateral_control/skid_backstepping.hpp"
 #include "romea_core_path_following/utils.hpp"
 
 namespace romea::core::path_following
 {
 
-LateralControlSkidSliding<SkidSteeringCommand>::LateralControlSkidSliding(
+LateralControlSkidBackstepping<SkidSteeringCommand>::LateralControlSkidBackstepping(
   double /*samplePeriod*/,
   double /*wheelbase*/,
   const MobileBaseInertia & /*inertia*/,
@@ -34,7 +34,7 @@ LateralControlSkidSliding<SkidSteeringCommand>::LateralControlSkidSliding(
 {
 }
 
-SkidSteeringCommand LateralControlSkidSliding<SkidSteeringCommand>::compute_command(
+SkidSteeringCommand LateralControlSkidBackstepping<SkidSteeringCommand>::compute_command(
   const SetPoint & set_point,
   const CommandLimits & command_limits,
   const PathFrenetPose2D & frenet_pose,
@@ -45,7 +45,7 @@ SkidSteeringCommand LateralControlSkidSliding<SkidSteeringCommand>::compute_comm
 {
   auto cur_gains = gains.load();
 
-  double angular_speed = computeBacksteppingSkidSteering(
+  double angular_speed = computeSkidBacksteppingAngularSpeed(
     frenet_pose.lateralDeviation,
     frenet_pose.courseDeviation,
     path_posture.curvature,
@@ -63,7 +63,7 @@ SkidSteeringCommand LateralControlSkidSliding<SkidSteeringCommand>::compute_comm
   return {set_point.linear_speed, angular_speed};
 }
 
-void LateralControlSkidSliding<SkidSteeringCommand>::log(SimpleFileLogger & logger)
+void LateralControlSkidBackstepping<SkidSteeringCommand>::log(SimpleFileLogger & logger)
 {
   logger.addEntry("target_course", target_course_);
 }

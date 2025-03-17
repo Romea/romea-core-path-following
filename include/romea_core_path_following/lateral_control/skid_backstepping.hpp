@@ -13,8 +13,8 @@
 // limitations under the License.
 
 
-#ifndef ROMEA_CORE_PATH_FOLLOWING__LATERAL_CONTROL__SKID_SLIDING_HPP_
-#define ROMEA_CORE_PATH_FOLLOWING__LATERAL_CONTROL__SKID_SLIDING_HPP_
+#ifndef ROMEA_CORE_PATH_FOLLOWING__LATERAL_CONTROL__SKID_BACKSTEPPING_HPP_
+#define ROMEA_CORE_PATH_FOLLOWING__LATERAL_CONTROL__SKID_BACKSTEPPING_HPP_
 
 // romea
 #include "romea_core_path_following/lateral_control/base.hpp"
@@ -24,12 +24,12 @@ namespace romea::core::path_following
 {
 
 template<typename CommandType>
-class LateralControlSkidSliding
+class LateralControlSkidBackstepping
 {
 };
 
 template<>
-class LateralControlSkidSliding<SkidSteeringCommand>
+class LateralControlSkidBackstepping<SkidSteeringCommand>
   : public LateralControlBase<SkidSteeringCommand, SkidSlidingParameters>
 {
 public:
@@ -46,7 +46,7 @@ public:
   };
 
 public:
-  LateralControlSkidSliding(
+  LateralControlSkidBackstepping(
     double sample_period,
     double wheelbase,
     const MobileBaseInertia & inertia,
