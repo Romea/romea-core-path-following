@@ -12,14 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "romea_core_path_following/utils.hpp"
-#include "romea_core_path_following/longitudinal_control/classic.hpp"
+// std
+#include <algorithm>
+#include <cstdlib>
+#include <iostream>
 
-namespace romea
-{
-namespace core
-{
-namespace path_following
+// local
+#include "romea_core_path_following/longitudinal_control/classic.hpp"
+#include "romea_core_path_following/utils.hpp"
+
+namespace romea::core::path_following
 {
 
 //-----------------------------------------------------------------------------
@@ -37,27 +39,27 @@ double LongitudinalControlClassic<OneAxleSteeringCommand>::compute_linear_speed(
   const OdometryMeasure & odometry_measure,
   const Twist2D & /*filtered_twist*/)
 {
-  // return setPoint.linearSpeed;
-  double desiredLinearSpeed = setpoint.linear_speed;
-  double desiredLateralDeviation = setpoint.lateral_deviation;
+  double desired_linear_speed = setpoint.linear_speed;
 
-  const double & EcartLat = frenet_pose.lateralDeviation;
-  const double & EcartAng = frenet_pose.courseDeviation;
-  const double & steering = get_front_steering_angle(odometry_measure);
-
-  double flag = 1;
-  if (fabs(steering) < 10 / 180. * M_PI) {flag = 0;}
-
-  double linearSpeedCommand =
-    fabs(desiredLinearSpeed) -
-    2 * (EcartLat - desiredLateralDeviation) * (EcartLat - desiredLateralDeviation) -
-    10 * EcartAng * EcartAng - 1 * flag * fabs(steering);
-
-  if (linearSpeedCommand < minimal_linear_speed_) {
-    linearSpeedCommand = minimal_linear_speed_;
+  if (std::abs(desired_linear_speed) < 1e-3) {
+    return desired_linear_speed;
   }
 
-  return std::copysign(linearSpeedCommand, desiredLinearSpeed);
+  double lat_error = frenet_pose.lateralDeviation - setpoint.lateral_deviation;
+  double ang_error = frenet_pose.courseDeviation - setpoint.course_deviation;
+  double steering_angle = get_front_steering_angle(odometry_measure);
+
+  double linear_speed_command = std::abs(setpoint.linear_speed);
+  linear_speed_command -= 2 * lat_error * lat_error;
+  linear_speed_command -= 10 * ang_error * ang_error;
+
+  if (fabs(steering_angle) < 10 / 180. * M_PI) {
+    linear_speed_command -= 1 * std::abs(steering_angle);
+  }
+
+  linear_speed_command = std::max(linear_speed_command, minimal_linear_speed_);
+
+  return std::copysign(linear_speed_command, desired_linear_speed);
 }
 
 //-----------------------------------------------------------------------------
@@ -69,7 +71,6 @@ void LongitudinalControlClassic<OneAxleSteeringCommand>::log(SimpleFileLogger & 
 void LongitudinalControlClassic<OneAxleSteeringCommand>::reset()
 {
 }
-
 
 //-----------------------------------------------------------------------------
 LongitudinalControlClassic<SkidSteeringCommand>::LongitudinalControlClassic(
@@ -90,8 +91,7 @@ double LongitudinalControlClassic<SkidSteeringCommand>::compute_linear_speed(
 }
 
 //-----------------------------------------------------------------------------
-void LongitudinalControlClassic<SkidSteeringCommand>::log(
-  SimpleFileLogger & /*logger*/)
+void LongitudinalControlClassic<SkidSteeringCommand>::log(SimpleFileLogger & /*logger*/)
 {
 }
 
@@ -99,7 +99,6 @@ void LongitudinalControlClassic<SkidSteeringCommand>::log(
 void LongitudinalControlClassic<SkidSteeringCommand>::reset()
 {
 }
-
 
 //-----------------------------------------------------------------------------
 LongitudinalControlClassic<TwoAxleSteeringCommand>::LongitudinalControlClassic(
@@ -129,6 +128,6 @@ void LongitudinalControlClassic<TwoAxleSteeringCommand>::reset()
 {
 }
 
-}  // namespace path_following
-}  // namespace core
-}  // namespace romea
+} // namespace romea::core::path_following
+
+
