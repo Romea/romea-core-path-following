@@ -13,7 +13,6 @@
 // limitations under the License.
 
 // romea
-#include <boost/atomic/detail/futex.hpp>
 #include <romea_core_control/command/FollowTrajectorySkidBackstepping.hpp>
 
 // local
