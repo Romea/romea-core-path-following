@@ -19,7 +19,7 @@
 #include <romea_core_common/geometry/Twist2D.hpp>
 #include <romea_core_common/log/SimpleFileLogger.hpp>
 #include <romea_core_common/time/Time.hpp>
-#include <romea_core_control/FrontRearData.hpp>
+#include <romea_core_control/CommandsData.hpp>
 #include <romea_core_mobile_base/info/MobileBaseInertia.hpp>
 #include <romea_core_path/PathMatchedPoint2D.hpp>
 #include <romea_core_path_following/traits.hpp>
