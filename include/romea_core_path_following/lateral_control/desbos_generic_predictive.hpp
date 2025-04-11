@@ -74,6 +74,8 @@ public:
 
   void log(SimpleFileLogger & logger) override;
 
+  void set_lmpc(bool lmpc) { lateral_control_.set_lmpc(lmpc); }
+
   SharedVariable<Gains> gains;
 
 private:

@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-
 #ifndef ROMEA_CORE_PATH_FOLLOWING__LATERAL_CONTROL__DESBOS_GENERIC_HPP_
 #define ROMEA_CORE_PATH_FOLLOWING__LATERAL_CONTROL__DESBOS_GENERIC_HPP_
 
@@ -33,7 +32,7 @@ class LateralControlDesbosGeneric
 
 template<>
 class LateralControlDesbosGeneric<SkidSteeringCommand>
-  : public LateralControlBase<SkidSteeringCommand, SkidSlidingParameters>
+: public LateralControlBase<SkidSteeringCommand, SkidSlidingParameters>
 {
 public:
   struct Gains
@@ -74,9 +73,6 @@ private:
   double target_course_ = 0;
 };
 
-
-} // namespace romea::core::path_following
-
-
+}  // namespace romea::core::path_following
 
 #endif  // ROMEA_CORE_PATH_FOLLOWING__LATERAL_CONTROL__SKID_SLIDING_HPP_
