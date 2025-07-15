@@ -317,7 +317,7 @@ public:
 
   void reset() override { path_following_->reset(); }
 
-  const double wheelbase_ = 1.2;
+  const double wheelbase_ = 2.0;
   std::unique_ptr<PathFollowingBase<OneAxleSteeringCommand>> path_following_;
 };
 

@@ -54,6 +54,8 @@ void SlidingObserverPicardSkidBackstepping<CommandType>::log(SimpleFileLogger & 
   logger.addEntry("slip_angle", observer_.getBetaR());
   logger.addEntry("lin_vel_disturb", observer_.getDotEpsilonSP());
   logger.addEntry("ang_vel_disturb", observer_.getDotThetaP());
+  logger.addEntry("getLateralEstim", observer_.getLateralEstim());
+  logger.addEntry("getAngularEstime", observer_.getAngularEstime());
 }
 
 template<typename CommandType>
