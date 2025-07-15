@@ -54,6 +54,13 @@ void SlidingObserverPicardSkidLyapunov<CommandType>::log(SimpleFileLogger & logg
   logger.addEntry("slip_angle", observer_.getBetaR());
   logger.addEntry("lin_vel_disturb", observer_.getDotEpsilonSP());
   logger.addEntry("ang_vel_disturb", observer_.getDotThetaP());
+  logger.addEntry("X_estime", observer_.getXEstime());
+  logger.addEntry("Y_estime", observer_.getYEstime());
+  logger.addEntry("Yheta_estime", observer_.getThetaEstime());
+    logger.addEntry("X_Real", observer_.getXR());
+  logger.addEntry("Y_Real", observer_.getYR());
+  logger.addEntry("Yheta_Real", observer_.getThetaR());
+  
 }
 
 template<typename CommandType>
