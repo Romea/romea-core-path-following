@@ -278,12 +278,12 @@ class OneAxleSteeringEquivalence : public PathFollowingBase<SkidSteeringCommand>
 {
 public:
   OneAxleSteeringEquivalence(
-    std::unique_ptr<PathFollowingBase<OneAxleSteeringCommand>> path_following)
-  : path_following_(std::move(path_following))
+    std::unique_ptr<PathFollowingBase<OneAxleSteeringCommand>> path_following, double wheelbase)
+  : wheelbase_(wheelbase), path_following_(std::move(path_following))
   {
   }
 
-  void register_logger(std::shared_ptr<Logger> logger)
+  void register_logger(std::shared_ptr<Logger> logger) override
   {
     logger_ = logger;
     path_following_->register_logger(logger);
@@ -317,7 +317,8 @@ public:
 
   void reset() override { path_following_->reset(); }
 
-  const double wheelbase_ = 2.0;
+private:
+  double wheelbase_;
   std::unique_ptr<PathFollowingBase<OneAxleSteeringCommand>> path_following_;
 };
 
