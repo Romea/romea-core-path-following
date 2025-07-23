@@ -18,72 +18,49 @@
 #include <iostream>
 
 // local
-#include "romea_core_path_following/longitudinal_control/classic.hpp"
+#include "romea_core_path_following/longitudinal_control/constant.hpp"
 #include "romea_core_path_following/utils.hpp"
 
 namespace romea::core::path_following
 {
 
 //-----------------------------------------------------------------------------
-LongitudinalControlClassic<OneAxleSteeringCommand>::LongitudinalControlClassic(
+LongitudinalControlConstant<OneAxleSteeringCommand>::LongitudinalControlConstant(
   const Parameters & parameters)
 : minimal_linear_speed_(parameters.minimal_linear_speed)
 {
 }
 
 //-----------------------------------------------------------------------------
-double LongitudinalControlClassic<OneAxleSteeringCommand>::compute_linear_speed(
+double LongitudinalControlConstant<OneAxleSteeringCommand>::compute_linear_speed(
   const SetPoint & setpoint,
   const PathFrenetPose2D & frenet_pose,
   const PathPosture2D & /*path_posture*/,
   const OdometryMeasure & odometry_measure,
   const Twist2D & /*filtered_twist*/)
 {
-  double desired_linear_speed = setpoint.linear_speed;
-
-  // temporary disable speed control
-  return desired_linear_speed;
-
-  // if (std::abs(desired_linear_speed) < 1e-3) {
-  //   return desired_linear_speed;
-  // }
-  //
-  // double lat_error = frenet_pose.lateralDeviation - setpoint.lateral_deviation;
-  // double ang_error = frenet_pose.courseDeviation - setpoint.course_deviation;
-  // double steering_angle = get_front_steering_angle(odometry_measure);
-  //
-  // double linear_speed_command = std::abs(setpoint.linear_speed);
-  // linear_speed_command -= 2 * lat_error * lat_error;
-  // linear_speed_command -= 10 * ang_error * ang_error;
-  //
-  // if (fabs(steering_angle) < 10 / 180. * M_PI) {
-  //   linear_speed_command -= 1 * std::abs(steering_angle);
-  // }
-  //
-  // linear_speed_command = std::max(linear_speed_command, minimal_linear_speed_);
-  //
-  // return std::copysign(linear_speed_command, desired_linear_speed);
+  return setpoint.linear_speed;
 }
 
 //-----------------------------------------------------------------------------
-void LongitudinalControlClassic<OneAxleSteeringCommand>::log(SimpleFileLogger & /*logger*/)
+void LongitudinalControlConstant<OneAxleSteeringCommand>::log(SimpleFileLogger & /*logger*/)
 {
 }
 
 //-----------------------------------------------------------------------------
-void LongitudinalControlClassic<OneAxleSteeringCommand>::reset()
+void LongitudinalControlConstant<OneAxleSteeringCommand>::reset()
 {
 }
 
 //-----------------------------------------------------------------------------
-LongitudinalControlClassic<SkidSteeringCommand>::LongitudinalControlClassic(
+LongitudinalControlConstant<SkidSteeringCommand>::LongitudinalControlConstant(
   const Parameters & parameters)
 : minimal_linear_speed_(parameters.minimal_linear_speed)
 {
 }
 
 //-----------------------------------------------------------------------------
-double LongitudinalControlClassic<SkidSteeringCommand>::compute_linear_speed(
+double LongitudinalControlConstant<SkidSteeringCommand>::compute_linear_speed(
   const SetPoint & setpoint,
   const PathFrenetPose2D & /*frenet_pose*/,
   const PathPosture2D & /*path_posture*/,
@@ -94,24 +71,24 @@ double LongitudinalControlClassic<SkidSteeringCommand>::compute_linear_speed(
 }
 
 //-----------------------------------------------------------------------------
-void LongitudinalControlClassic<SkidSteeringCommand>::log(SimpleFileLogger & /*logger*/)
+void LongitudinalControlConstant<SkidSteeringCommand>::log(SimpleFileLogger & /*logger*/)
 {
 }
 
 //-----------------------------------------------------------------------------
-void LongitudinalControlClassic<SkidSteeringCommand>::reset()
+void LongitudinalControlConstant<SkidSteeringCommand>::reset()
 {
 }
 
 //-----------------------------------------------------------------------------
-LongitudinalControlClassic<TwoAxleSteeringCommand>::LongitudinalControlClassic(
+LongitudinalControlConstant<TwoAxleSteeringCommand>::LongitudinalControlConstant(
   const Parameters & parameters)
 : minimal_linear_speed_(parameters.minimal_linear_speed)
 {
 }
 
 //-----------------------------------------------------------------------------
-double LongitudinalControlClassic<TwoAxleSteeringCommand>::compute_linear_speed(
+double LongitudinalControlConstant<TwoAxleSteeringCommand>::compute_linear_speed(
   const SetPoint & setpoint,
   const PathFrenetPose2D & /*frenet_pose*/,
   const PathPosture2D & /*path_posture*/,
@@ -122,12 +99,12 @@ double LongitudinalControlClassic<TwoAxleSteeringCommand>::compute_linear_speed(
 }
 
 //-----------------------------------------------------------------------------
-void LongitudinalControlClassic<TwoAxleSteeringCommand>::log(SimpleFileLogger & /*logger*/)
+void LongitudinalControlConstant<TwoAxleSteeringCommand>::log(SimpleFileLogger & /*logger*/)
 {
 }
 
 //-----------------------------------------------------------------------------
-void LongitudinalControlClassic<TwoAxleSteeringCommand>::reset()
+void LongitudinalControlConstant<TwoAxleSteeringCommand>::reset()
 {
 }
 
