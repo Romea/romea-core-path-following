@@ -21,13 +21,14 @@ namespace romea::core::path_following
 
 template<typename CommandType>
 SlidingObserverPicardSkidLyapunov<CommandType>::SlidingObserverPicardSkidLyapunov(
-  double sampling_period, const Parameters & parameters)
-: observer_(sampling_period, parameters)
+  const Parameters & parameters)
+: observer_(parameters)
 {
 }
 
 template<typename CommandType>
 SkidSlidingParameters SlidingObserverPicardSkidLyapunov<CommandType>::compute_slidings(
+  double delta_time,
   const PathFrenetPose2D & frenet_pose,
   const PathPosture2D & path_posture,
   const OdometryMeasure & odometry_measure,
@@ -39,7 +40,7 @@ SkidSlidingParameters SlidingObserverPicardSkidLyapunov<CommandType>::compute_sl
   double y = path_pos.y() + std::cos(path_posture.course) * frenet_pose.lateralDeviation;
   double course = path_posture.course + sign(linear_speed) * frenet_pose.courseDeviation;
 
-  observer_.update(x, y, course, linear_speed, odometry_measure.angularSpeed);
+  observer_.update(delta_time, x, y, course, linear_speed, odometry_measure.angularSpeed);
 
   return {
     observer_.getBetaR(),
@@ -60,7 +61,7 @@ void SlidingObserverPicardSkidLyapunov<CommandType>::log(SimpleFileLogger & logg
     logger.addEntry("X_Real", observer_.getXR());
   logger.addEntry("Y_Real", observer_.getYR());
   logger.addEntry("Yheta_Real", observer_.getThetaR());
-  
+
 }
 
 template<typename CommandType>

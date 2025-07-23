@@ -12,26 +12,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-
 #ifndef ROMEA_CORE_PATH_FOLLOWING__SLIDING_OBSERVER__BASE_HPP_
 #define ROMEA_CORE_PATH_FOLLOWING__SLIDING_OBSERVER__BASE_HPP_
 
 // romea
-#include <romea_core_common/log/SimpleFileLogger.hpp>
 #include <romea_core_common/geometry/Twist2D.hpp>
+#include <romea_core_common/log/SimpleFileLogger.hpp>
+#include <romea_core_common/time/Time.hpp>
 #include <romea_core_control/FrontRearData.hpp>
 #include <romea_core_mobile_base/info/MobileBaseInertia.hpp>
 #include <romea_core_path/PathMatchedPoint2D.hpp>
 #include <romea_core_path_following/traits.hpp>
 
-namespace romea
-{
-namespace core
-{
-namespace path_following
+namespace romea::core::path_following
 {
 
-struct WildcardSlidings {};
+struct WildcardSlidings
+{
+};
 
 template<typename CommandType, typename SlidingsType>
 class SlidingObserverBase
@@ -46,6 +44,7 @@ public:
   virtual ~SlidingObserverBase() = default;
 
   virtual SlidingsType compute_slidings(
+    double delta_time,
     const PathFrenetPose2D & frenetPose,
     const PathPosture2D & pathPosture,
     const OdometryMeasure & odometryMeasure,
@@ -56,8 +55,6 @@ public:
   virtual void reset() = 0;
 };
 
-}  // namespace path_following
-}  // namespace core
-}  // namespace romea
+}  // namespace romea::core::path_following
 
 #endif  // ROMEA_CORE_PATH_FOLLOWING__SLIDING_OBSERVER__BASE_HPP_

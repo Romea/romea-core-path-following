@@ -31,9 +31,10 @@ public:
   using Parameters = Observer::Parameters;
 
 public:
-  SlidingObserverPicardSkidBackstepping(double samplingPeriod, const Parameters & parameters);
+  SlidingObserverPicardSkidBackstepping(const Parameters & parameters);
 
   SkidSlidingParameters compute_slidings(
+    double delta_time,
     const PathFrenetPose2D & frenet_pose,
     const PathPosture2D & path_posture,
     const OdometryMeasure & odometry_measure,

@@ -39,12 +39,12 @@ public:
 
 public:
   SlidingObserverExtendedCinematicLyapunov(
-    const double & sampling_period,
     const double & wheelbase,
     const MobileBaseInertia & inertia,
     const Parameters & parameters);
 
   ExtendedSlidings compute_slidings(
+    double delta_time,
     const PathFrenetPose2D & frenet_pose,
     const PathPosture2D & path_posture,
     const OdometryMeasure & odometry_measure,

@@ -18,6 +18,7 @@
 // std
 #include <iostream>
 #include <memory>
+#include <romea_core_common/time/Time.hpp>
 #include <utility>
 #include <vector>
 
@@ -59,6 +60,7 @@ public:
   virtual FSMStatus get_status() { return fsm_.get_status(); }
 
   virtual std::optional<CommandType> compute_command(
+    const TimePoint & stamp,
     const SetPoint & user_setpoint,
     const CommandLimits & command_limits,
     const std::vector<PathMatchedPoint2D> & matched_points,
@@ -87,6 +89,7 @@ public:
     CommandType command;
     if (direction(matched_point) >= 0) {
       command = compute_command(
+        stamp,
         setpoint,
         command_limits,
         matched_point.frenetPose,
@@ -96,6 +99,7 @@ public:
         filtered_twist);
     } else {
       command = compute_command(
+        stamp,
         setpoint,
         command_limits,
         reverse(matched_point.frenetPose),
@@ -121,6 +125,7 @@ public:
   virtual void reset() = 0;
 
   virtual CommandType compute_command(
+    const TimePoint & stamp,
     const SetPoint & setpoint,
     const CommandLimits & command_limits,
     const PathFrenetPose2D & frenet_pose,
@@ -152,6 +157,7 @@ public:
   }
 
   CommandType compute_command(
+    const TimePoint & /*stamp*/,
     const SetPoint & setpoint,
     const CommandLimits & command_limits,
     const PathFrenetPose2D & frenet_pose,
@@ -215,6 +221,7 @@ public:
   }
 
   CommandType compute_command(
+    const TimePoint & stamp,
     const SetPoint & setpoint,
     const CommandLimits & command_limits,
     const PathFrenetPose2D & frenet_pose,
@@ -223,10 +230,12 @@ public:
     const OdometryMeasure & odometry_measure,
     const Twist2D & filtered_twist)
   {
+    double delta_time = durationToSecond(duration(stamp, prev_stamp_));
+
     LateralControlSlidings slidings;
     if constexpr (std::is_same_v<LateralControlSlidings, ObserverSlidings>) {
       slidings = sliding_observer_->compute_slidings(
-        frenet_pose, path_posture, odometry_measure, filtered_twist);
+        delta_time, frenet_pose, path_posture, odometry_measure, filtered_twist);
     } else {
       // convert slidings
       std::cerr << "no sliding converter available for the current config\n";
@@ -257,6 +266,8 @@ public:
       sliding_observer_->log(*this->logger_);
       log(*this->logger_, command);
     }
+
+    prev_stamp_ = stamp;
     return command;
   }
 
@@ -269,6 +280,7 @@ public:
   }
 
 private:
+  romea::core::TimePoint prev_stamp_;
   std::shared_ptr<LateralControl> lateral_control_;
   std::shared_ptr<LongitudinalControl> longitudinal_control_;
   std::shared_ptr<SlidingObserver> sliding_observer_;
@@ -290,6 +302,7 @@ public:
   }
 
   SkidSteeringCommand compute_command(
+    const TimePoint & stamp,
     const SetPoint & setpoint,
     const SkidSteeringCommandLimits & command_limits,
     const PathFrenetPose2D & frenet_pose,
@@ -299,6 +312,7 @@ public:
     const Twist2D & filtered_twist) override
   {
     OneAxleSteeringCommand command = path_following_->compute_command(
+      stamp,
       setpoint,
       to_one_axle_steering_command_limits(command_limits),
       frenet_pose,

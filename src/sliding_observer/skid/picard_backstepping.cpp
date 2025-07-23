@@ -21,19 +21,21 @@ namespace romea::core::path_following
 
 template<typename CommandType>
 SlidingObserverPicardSkidBackstepping<CommandType>::SlidingObserverPicardSkidBackstepping(
-  double sampling_period, const Parameters & parameters)
-: observer_(sampling_period, parameters)
+  const Parameters & parameters)
+: observer_(parameters)
 {
 }
 
 template<typename CommandType>
 SkidSlidingParameters SlidingObserverPicardSkidBackstepping<CommandType>::compute_slidings(
+  double delta_time,
   const PathFrenetPose2D & frenet_pose,
   const PathPosture2D & path_posture,
   const OdometryMeasure & odometry_measure,
   const Twist2D & /* filtered_twist */)
 {
   observer_.update(
+    delta_time,
     frenet_pose.lateralDeviation,
     sign(odometry_measure.longitudinalSpeed) * frenet_pose.courseDeviation,
     path_posture.curvature,

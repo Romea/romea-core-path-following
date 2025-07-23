@@ -30,11 +30,10 @@ namespace path_following
 template<typename CommandType>
 SlidingObserverExtendedCinematicLinearTangent<CommandType>::
 SlidingObserverExtendedCinematicLinearTangent(
-  const double & samplingPeriod,
   const double & wheelBase,
   const MobileBaseInertia & /*inertia*/,
   const Parameters & parameters)
-: observer_(samplingPeriod, wheelBase, parameters)
+: observer_(wheelBase, parameters)
 {
 }
 
@@ -42,6 +41,7 @@ SlidingObserverExtendedCinematicLinearTangent(
 template<typename CommandType>
 ExtendedSlidings
 SlidingObserverExtendedCinematicLinearTangent<CommandType>::compute_slidings(
+  double delta_time,
   const PathFrenetPose2D & frenetPose,
   const PathPosture2D & pathPosture,
   const OdometryMeasure & odometryMeasure,
@@ -50,6 +50,7 @@ SlidingObserverExtendedCinematicLinearTangent<CommandType>::compute_slidings(
   const double linearSpeed = filteredTwist.linearSpeeds.x();
 
   observer_.update(
+    delta_time,
     frenetPose.lateralDeviation,
     sign(linearSpeed) * frenetPose.courseDeviation,
     pathPosture.curvature,

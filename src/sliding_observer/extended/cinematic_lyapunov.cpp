@@ -12,34 +12,27 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-
 // romea
-#include "romea_core_common/math/Algorithm.hpp"
-#include "romea_core_path_following/utils.hpp"
 #include "romea_core_path_following/sliding_observer/extended/cinematic_lyapunov.hpp"
 
+#include "romea_core_common/math/Algorithm.hpp"
+#include "romea_core_path_following/utils.hpp"
 
-namespace romea
-{
-namespace core
-{
-namespace path_following
+namespace romea::core::path_following
 {
 
 //-----------------------------------------------------------------------------
 template<typename CommandType>
 SlidingObserverExtendedCinematicLyapunov<CommandType>::SlidingObserverExtendedCinematicLyapunov(
-  const double & samplingPeriod,
-  const double & wheelBase,
-  const MobileBaseInertia & /*inertia*/,
-  const Parameters & parameters)
-: x_(0), y_(0), course_(0), observer_(samplingPeriod, wheelBase, parameters)
+  const double & wheelBase, const MobileBaseInertia & /*inertia*/, const Parameters & parameters)
+: x_(0), y_(0), course_(0), observer_(wheelBase, parameters)
 {
 }
 
 //-----------------------------------------------------------------------------
 template<typename CommandType>
 ExtendedSlidings SlidingObserverExtendedCinematicLyapunov<CommandType>::compute_slidings(
+  double delta_time,
   const PathFrenetPose2D & frenetPose,
   const PathPosture2D & pathPosture,
   const OdometryMeasure & odometryMeasure,
@@ -51,7 +44,11 @@ ExtendedSlidings SlidingObserverExtendedCinematicLyapunov<CommandType>::compute_
   course_ = pathPosture.course + sign(linearSpeed) * frenetPose.courseDeviation;
 
   observer_.update(
-    x_, y_, course_, linearSpeed,
+    delta_time,
+    x_,
+    y_,
+    course_,
+    linearSpeed,
     get_front_steering_angle(odometryMeasure),
     get_rear_steering_angle(odometryMeasure));
 
@@ -86,6 +83,4 @@ void SlidingObserverExtendedCinematicLyapunov<CommandType>::log(SimpleFileLogger
 template class SlidingObserverExtendedCinematicLyapunov<OneAxleSteeringCommand>;
 template class SlidingObserverExtendedCinematicLyapunov<TwoAxleSteeringCommand>;
 
-}   // namespace path_following
-}   // namespace core
-}   // namespace romea
+}  // namespace romea::core::path_following
