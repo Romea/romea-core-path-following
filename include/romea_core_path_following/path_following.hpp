@@ -230,7 +230,7 @@ public:
     const OdometryMeasure & odometry_measure,
     const Twist2D & filtered_twist)
   {
-    double delta_time = durationToSecond(duration(stamp, prev_stamp_));
+    double delta_time = compute_delta_time(stamp);
 
     LateralControlSlidings slidings;
     if constexpr (std::is_same_v<LateralControlSlidings, ObserverSlidings>) {
@@ -269,6 +269,21 @@ public:
 
     prev_stamp_ = stamp;
     return command;
+  }
+
+  double compute_delta_time(const TimePoint & stamp)
+  {
+    // compute duration only if prev_stamp_ is set
+    double delta_time{};
+    if(prev_stamp_.time_since_epoch().count()) {
+      delta_time = durationToSecond(duration(stamp, prev_stamp_));
+    }
+
+    // avoid null duration
+    delta_time = std::max(delta_time, 1e-4);
+
+    prev_stamp_ = stamp;
+    return delta_time;
   }
 
   void reset() override
