@@ -30,7 +30,6 @@ LateralControlDesbosGenericPredictive<SkidSteeringCommand>::LateralControlDesbos
   const Parameters & parameters)
 : gains(parameters.gains),
   lateral_control_(
-    sampling_period,
     {
       parameters.gains.kp,
       parameters.gains.kd,
@@ -44,8 +43,7 @@ LateralControlDesbosGenericPredictive<SkidSteeringCommand>::LateralControlDesbos
       parameters.lmpc,
       parameters.horizon,
       parameters.model_order,
-    }),
-  sampling_period_(sampling_period)
+    })
 {
 }
 
