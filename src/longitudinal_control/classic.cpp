@@ -36,36 +36,34 @@ double LongitudinalControlClassic<OneAxleSteeringCommand>::compute_linear_speed(
   const SetPoint & setpoint,
   const PathFrenetPose2D & frenet_pose,
   const PathPosture2D & path_posture,
-  const OdometryMeasure & odometry_measure,
+  double future_curvature,
+  const OdometryMeasure & /*odometry_measure*/,
   const Twist2D & /*filtered_twist*/)
 {
   double desired_linear_speed = setpoint.linear_speed;
   // parameters
-  double Ymax=0.20; //Maximal admissible error
-  double YmaxAbs=5; // Maximal possible error before stopping algo
-  double Tau=1.0;  // settling time on angular speed
+  double Ymax = 0.20;  //Maximal admissible error
+  double YmaxAbs = 5;  // Maximal possible error before stopping algo
+  double Tau = 1.0;    // settling time on angular speed
   double current_curvature = path_posture.curvature;
-  double future_curvature = 0.0;
-  double v_max=2.5;
+  double v_max = 2.5;
 
   // Max speed computation after initialization on path (curvarture transition)
-  double Max_Speed = sqrt(Ymax/(Tau*fabs(future_curvature-current_curvature)));
+  double Max_Speed = sqrt(Ymax / (Tau * fabs(future_curvature - current_curvature)));
 
-  
+  if (Max_Speed < desired_linear_speed) {
+    desired_linear_speed = Max_Speed;
+  }
 
-  if (Max_Speed<desired_linear_speed) 
-    desired_linear_speed  = Max_Speed;
+  // Max speed computation for initial error
+  double Max_Speed2 = v_max * cos(fabs(2 * frenet_pose.courseDeviation)) *
+                      cos(fabs(frenet_pose.lateralDeviation / YmaxAbs));
 
-
-  // Max speed computation for initial error 
-  double Max_Speed2=v_max*cos(fabs(2*frenet_pose.courseDeviation))*cos(fabs(frenet_pose.lateralDeviation/YmaxAbs));
-
-  if (Max_Speed2<desired_linear_speed) 
-    desired_linear_speed  = Max_Speed2;
+  if (Max_Speed2 < desired_linear_speed) {
+    desired_linear_speed = Max_Speed2;
+  }
   // temporary disable speed control
   return desired_linear_speed;
-
-
 
   // if (std::abs(desired_linear_speed) < 1e-3) {
   //   return desired_linear_speed;
@@ -110,6 +108,7 @@ double LongitudinalControlClassic<SkidSteeringCommand>::compute_linear_speed(
   const SetPoint & setpoint,
   const PathFrenetPose2D & /*frenet_pose*/,
   const PathPosture2D & /*path_posture*/,
+  double /*future_curvature*/,
   const OdometryMeasure & /*odometry_measure*/,
   const Twist2D & /*filtered_twist*/)
 {
@@ -138,6 +137,7 @@ double LongitudinalControlClassic<TwoAxleSteeringCommand>::compute_linear_speed(
   const SetPoint & setpoint,
   const PathFrenetPose2D & /*frenet_pose*/,
   const PathPosture2D & /*path_posture*/,
+  double /*future_curvature*/,
   const OdometryMeasure & /*odometry_measure*/,
   const Twist2D & /*filtered_twist*/)
 {
@@ -154,6 +154,4 @@ void LongitudinalControlClassic<TwoAxleSteeringCommand>::reset()
 {
 }
 
-} // namespace romea::core::path_following
-
-
+}  // namespace romea::core::path_following

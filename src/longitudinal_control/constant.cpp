@@ -34,9 +34,10 @@ LongitudinalControlConstant<OneAxleSteeringCommand>::LongitudinalControlConstant
 //-----------------------------------------------------------------------------
 double LongitudinalControlConstant<OneAxleSteeringCommand>::compute_linear_speed(
   const SetPoint & setpoint,
-  const PathFrenetPose2D & frenet_pose,
+  const PathFrenetPose2D &  /*frenet_pose*/,
   const PathPosture2D & /*path_posture*/,
-  const OdometryMeasure & odometry_measure,
+  double  /*future_curvature*/,
+  const OdometryMeasure &  /*odometry_measure*/,
   const Twist2D & /*filtered_twist*/)
 {
   return setpoint.linear_speed;
@@ -64,6 +65,7 @@ double LongitudinalControlConstant<SkidSteeringCommand>::compute_linear_speed(
   const SetPoint & setpoint,
   const PathFrenetPose2D & /*frenet_pose*/,
   const PathPosture2D & /*path_posture*/,
+  double  /*future_curvature*/,
   const OdometryMeasure & /*odometry_measure*/,
   const Twist2D & /*filtered_twist*/)
 {
@@ -92,6 +94,7 @@ double LongitudinalControlConstant<TwoAxleSteeringCommand>::compute_linear_speed
   const SetPoint & setpoint,
   const PathFrenetPose2D & /*frenet_pose*/,
   const PathPosture2D & /*path_posture*/,
+  double  /*future_curvature*/,
   const OdometryMeasure & /*odometry_measure*/,
   const Twist2D & /*filtered_twist*/)
 {
@@ -108,6 +111,4 @@ void LongitudinalControlConstant<TwoAxleSteeringCommand>::reset()
 {
 }
 
-} // namespace romea::core::path_following
-
-
+}  // namespace romea::core::path_following

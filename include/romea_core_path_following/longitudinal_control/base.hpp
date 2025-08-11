@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-
 #ifndef ROMEA_CORE_PATH_FOLLOWING__LONGITUDINAL_CONTROL__BASE_HPP_
 #define ROMEA_CORE_PATH_FOLLOWING__LONGITUDINAL_CONTROL__BASE_HPP_
 
@@ -20,18 +19,14 @@
 #include <memory>
 
 // romea
-#include "romea_core_common/log/SimpleFileLogger.hpp"
 #include "romea_core_common/geometry/Twist2D.hpp"
+#include "romea_core_common/log/SimpleFileLogger.hpp"
 #include "romea_core_path/PathFrenetPose2D.hpp"
 #include "romea_core_path/PathPosture2D.hpp"
 #include "romea_core_path_following/logs.hpp"
 #include "romea_core_path_following/traits.hpp"
 
-namespace romea
-{
-namespace core
-{
-namespace path_following
+namespace romea::core::path_following
 {
 
 template<class CommandType>
@@ -48,6 +43,7 @@ public:
     const SetPoint & setpoint,
     const PathFrenetPose2D & frenet_pose,
     const PathPosture2D & path_posture,
+    double future_curvature,
     const OdometryMeasure & odometry_measure,
     const Twist2D & filtered_twist) = 0;
 
@@ -56,8 +52,6 @@ public:
   virtual void reset() = 0;
 };
 
-}  // namespace path_following
-}  // namespace core
-}  // namespace romea
+}  // namespace romea::core::path_following
 
 #endif  // ROMEA_CORE_PATH_FOLLOWING__LONGITUDINAL_CONTROL__BASE_HPP_

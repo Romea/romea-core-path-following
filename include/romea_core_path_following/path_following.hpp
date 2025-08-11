@@ -170,7 +170,7 @@ public:
       setpoint, command_limits, frenet_pose, path_posture, future_curvature, odometry_measure);
 
     command.longitudinalSpeed = this->longitudinal_control_->compute_linear_speed(
-      setpoint, frenet_pose, path_posture, odometry_measure, filtered_twist);
+      setpoint, frenet_pose, path_posture, future_curvature, odometry_measure, filtered_twist);
 
     if (this->logger_ != nullptr) {
       this->logger_->addEntry("fsm_status", static_cast<int>(this->fsm_.get_status()));
@@ -251,7 +251,7 @@ public:
       slidings);
 
     command.longitudinalSpeed = this->longitudinal_control_->compute_linear_speed(
-      setpoint, frenet_pose, path_posture, odometry_measure, filtered_twist);
+      setpoint, frenet_pose, path_posture, future_curvature, odometry_measure, filtered_twist);
 
     if (this->logger_ != nullptr) {
       this->logger_->addEntry("fsm_status", static_cast<int>(this->fsm_.get_status()));

@@ -12,21 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-
 #ifndef ROMEA_CORE_PATH_FOLLOWING__LONGITUDINAL_CONTROL__CLASSIC_HPP_
 #define ROMEA_CORE_PATH_FOLLOWING__LONGITUDINAL_CONTROL__CLASSIC_HPP_
-
 
 // romea
 #include "romea_core_path_following/longitudinal_control/base.hpp"
 
-namespace romea
+namespace romea::core::path_following
 {
-namespace core
-{
-namespace path_following
-{
-
 
 template<class CommandType>
 class LongitudinalControlClassic
@@ -35,7 +28,7 @@ class LongitudinalControlClassic
 
 template<>
 class LongitudinalControlClassic<OneAxleSteeringCommand>
-  : public LongitudinalControlBase<OneAxleSteeringCommand>
+: public LongitudinalControlBase<OneAxleSteeringCommand>
 {
 public:
   struct Parameters
@@ -50,6 +43,7 @@ public:
     const SetPoint & setpoint,
     const PathFrenetPose2D & frenet_pose,
     const PathPosture2D & path_posture,
+    double future_curvature,
     const OdometryMeasure & odometry_measure,
     const Twist2D & filtered_twist) override;
 
@@ -61,10 +55,9 @@ protected:
   double minimal_linear_speed_;
 };
 
-
 template<>
 class LongitudinalControlClassic<SkidSteeringCommand>
-  : public LongitudinalControlBase<SkidSteeringCommand>
+: public LongitudinalControlBase<SkidSteeringCommand>
 {
 public:
   struct Parameters
@@ -79,12 +72,13 @@ public:
     const SetPoint & setpoint,
     const PathFrenetPose2D & frenet_pose,
     const PathPosture2D & path_posture,
+    double future_curvature,
     const OdometryMeasure & odometry_measure,
-    const Twist2D & filtered_twist)override;
+    const Twist2D & filtered_twist) override;
 
-  void log(SimpleFileLogger & logger)override;
+  void log(SimpleFileLogger & logger) override;
 
-  void reset()override;
+  void reset() override;
 
 protected:
   double minimal_linear_speed_;
@@ -92,7 +86,7 @@ protected:
 
 template<>
 class LongitudinalControlClassic<TwoAxleSteeringCommand>
-  : public LongitudinalControlBase<TwoAxleSteeringCommand>
+: public LongitudinalControlBase<TwoAxleSteeringCommand>
 {
 public:
   struct Parameters
@@ -107,20 +101,18 @@ public:
     const SetPoint & setpoint,
     const PathFrenetPose2D & frenet_pose,
     const PathPosture2D & path_posture,
+    double future_curvature,
     const OdometryMeasure & odometry_measure,
-    const Twist2D & filtered_twist)override;
+    const Twist2D & filtered_twist) override;
 
-  void log(SimpleFileLogger & logger)override;
+  void log(SimpleFileLogger & logger) override;
 
-  void reset()override;
+  void reset() override;
 
 protected:
   double minimal_linear_speed_;
 };
 
-
-}  // namespace path_following
-}  // namespace core
-}  // namespace romea
+}  // namespace romea::core::path_following
 
 #endif  // ROMEA_CORE_PATH_FOLLOWING__LONGITUDINAL_CONTROL__CLASSIC_HPP_
