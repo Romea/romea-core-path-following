@@ -42,6 +42,7 @@ double LongitudinalControlClassic<OneAxleSteeringCommand>::compute_linear_speed(
   double desired_linear_speed = setpoint.linear_speed;
   // parameters
   double Ymax=0.20; //Maximal admissible error
+  double YmaxAbs=5; // Maximal possible error before stopping algo
   double Tau=1.0;  // settling time on angular speed
   double current_curvature = path_posture.curvature;
   double future_curvature = 0.0;
@@ -57,7 +58,7 @@ double LongitudinalControlClassic<OneAxleSteeringCommand>::compute_linear_speed(
 
 
   // Max speed computation for initial error 
-  double Max_Speed2=v_max*cos(fabs(2*frenet_pose.courseDeviation));
+  double Max_Speed2=v_max*cos(fabs(2*frenet_pose.courseDeviation))*cos(fabs(frenet_pose.lateralDeviation/YmaxAbs));
 
   if (Max_Speed2<desired_linear_speed) 
     desired_linear_speed  = Max_Speed2;
