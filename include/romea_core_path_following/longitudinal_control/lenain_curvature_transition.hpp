@@ -22,13 +22,14 @@ namespace romea::core::path_following
 {
 
 template<class CommandType>
-class LongitudinalControlLenainCurvatureTransition
-: public LongitudinalControlBase<OneAxleSteeringCommand>
+class LongitudinalControlLenainCurvatureTransition : public LongitudinalControlBase<CommandType>
 {
+public:
   struct Parameters
   {
     double minimal_linear_speed;
   };
+  using OdometryMeasure = typename LongitudinalControlBase<CommandType>::OdometryMeasure;
 
 public:
   explicit LongitudinalControlLenainCurvatureTransition(const Parameters & parameters);
