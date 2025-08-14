@@ -18,7 +18,7 @@
 #include <iostream>
 
 // local
-#include "romea_core_path_following/longitudinal_control/lenain_curvature_transition.hpp"
+#include "romea_core_path_following/longitudinal_control/curvature_transition.hpp"
 #include "romea_core_path_following/utils.hpp"
 
 namespace romea::core::path_following
@@ -26,15 +26,15 @@ namespace romea::core::path_following
 
 //-----------------------------------------------------------------------------
 template<class CommandType>
-LongitudinalControlLenainCurvatureTransition<
-  CommandType>::LongitudinalControlLenainCurvatureTransition(const Parameters & parameters)
+LongitudinalControlCurvatureTransition<
+  CommandType>::LongitudinalControlCurvatureTransition(const Parameters & parameters)
 : minimal_linear_speed_(parameters.minimal_linear_speed)
 {
 }
 
 //-----------------------------------------------------------------------------
 template<class CommandType>
-double LongitudinalControlLenainCurvatureTransition<CommandType>::compute_linear_speed(
+double LongitudinalControlCurvatureTransition<CommandType>::compute_linear_speed(
   const SetPoint & setpoint,
   const PathFrenetPose2D & frenet_pose,
   const PathPosture2D & path_posture,
@@ -66,19 +66,19 @@ double LongitudinalControlLenainCurvatureTransition<CommandType>::compute_linear
 
 //-----------------------------------------------------------------------------
 template<class CommandType>
-void LongitudinalControlLenainCurvatureTransition<CommandType>::log(SimpleFileLogger & /*logger*/)
+void LongitudinalControlCurvatureTransition<CommandType>::log(SimpleFileLogger & /*logger*/)
 {
 }
 
 //-----------------------------------------------------------------------------
 template<class CommandType>
-void LongitudinalControlLenainCurvatureTransition<CommandType>::reset()
+void LongitudinalControlCurvatureTransition<CommandType>::reset()
 {
 }
 
 
-template class LongitudinalControlLenainCurvatureTransition<OneAxleSteeringCommand>;
-template class LongitudinalControlLenainCurvatureTransition<TwoAxleSteeringCommand>;
-template class LongitudinalControlLenainCurvatureTransition<SkidSteeringCommand>;
+template class LongitudinalControlCurvatureTransition<OneAxleSteeringCommand>;
+template class LongitudinalControlCurvatureTransition<TwoAxleSteeringCommand>;
+template class LongitudinalControlCurvatureTransition<SkidSteeringCommand>;
 
 }  // namespace romea::core::path_following

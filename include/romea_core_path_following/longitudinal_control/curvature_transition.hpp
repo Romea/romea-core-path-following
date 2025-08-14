@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef ROMEA_CORE_PATH_FOLLOWING__LONGITUDINAL_CONTROL__LENAIN_CURVATURE_TRANSITION_HPP_
-#define ROMEA_CORE_PATH_FOLLOWING__LONGITUDINAL_CONTROL__LENAIN_CURVATURE_TRANSITION_HPP_
+#ifndef ROMEA_CORE_PATH_FOLLOWING__LONGITUDINAL_CONTROL__CURVATURE_TRANSITION_HPP_
+#define ROMEA_CORE_PATH_FOLLOWING__LONGITUDINAL_CONTROL__CURVATURE_TRANSITION_HPP_
 
 // romea
 #include "romea_core_path_following/longitudinal_control/base.hpp"
@@ -22,7 +22,7 @@ namespace romea::core::path_following
 {
 
 template<class CommandType>
-class LongitudinalControlLenainCurvatureTransition : public LongitudinalControlBase<CommandType>
+class LongitudinalControlCurvatureTransition : public LongitudinalControlBase<CommandType>
 {
 public:
   struct Parameters
@@ -32,7 +32,7 @@ public:
   using OdometryMeasure = typename LongitudinalControlBase<CommandType>::OdometryMeasure;
 
 public:
-  explicit LongitudinalControlLenainCurvatureTransition(const Parameters & parameters);
+  explicit LongitudinalControlCurvatureTransition(const Parameters & parameters);
 
   double compute_linear_speed(
     const SetPoint & setpoint,
