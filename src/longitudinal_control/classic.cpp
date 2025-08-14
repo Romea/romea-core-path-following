@@ -42,13 +42,12 @@ double LongitudinalControlClassic<OneAxleSteeringCommand>::compute_linear_speed(
 {
   double desired_linear_speed = setpoint.linear_speed;
   // parameters
-  double Ymax = 0.10;  //Maximal admissible error
-  double YmaxAbs = 5;  // Maximal possible error before stopping algo
+  double Ymax = 0.20;  //Maximal admissible error
   double Tau = 1.0;    // settling time on angular speed
   double current_curvature = path_posture.curvature;
   double v_max = 2.5;
-  double N=10.0; // parameters for settling convergence ratio between lateral and angular dynamics
-  double D=13.0; // Settling distance in m for lateral deviation (given by control law gains)
+  double N=10.0; // parameters for settling convergence ratio between lateral and angular dynamics >3
+  double D=5.0; // Settling distance in m for lateral deviation (given by control law gains)
 
 
   // Max speed computation after initialization on path (curvarture transition)
