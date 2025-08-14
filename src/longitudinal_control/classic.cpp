@@ -42,11 +42,14 @@ double LongitudinalControlClassic<OneAxleSteeringCommand>::compute_linear_speed(
 {
   double desired_linear_speed = setpoint.linear_speed;
   // parameters
-  double Ymax = 0.05;  //Maximal admissible error
-  double YmaxAbs = 3;  // Maximal possible error before stopping algo
+  double Ymax = 0.10;  //Maximal admissible error
+  double YmaxAbs = 5;  // Maximal possible error before stopping algo
   double Tau = 1.0;    // settling time on angular speed
   double current_curvature = path_posture.curvature;
-  double v_max = 1.5;
+  double v_max = 2.5;
+  double N=10.0; // parameters for settling convergence ratio between lateral and angular dynamics
+  double D=13.0; // Settling distance in m for lateral deviation (given by control law gains)
+
 
   // Max speed computation after initialization on path (curvarture transition)
   double Max_Speed = sqrt(Ymax / (Tau * fabs(future_curvature - current_curvature)));
@@ -54,8 +57,9 @@ double LongitudinalControlClassic<OneAxleSteeringCommand>::compute_linear_speed(
   desired_linear_speed = std::min(Max_Speed, desired_linear_speed);
 
   // Max speed computation for initial error
-  double Max_Speed2 = v_max * cos(fabs(2 * frenet_pose.courseDeviation)) *
-                      cos(fabs(frenet_pose.lateralDeviation / YmaxAbs));
+
+  double Max_Speed2 = (D/(3*Tau)) *((N+1)/N + 0.3333* logf(Ymax/abs(frenet_pose.lateralDeviation)));
+  // Max_Speed2 = 0.5;
 
   // std::cout << "max_speed2: " << Max_Speed2 << std::endl;
 
