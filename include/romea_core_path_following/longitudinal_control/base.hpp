@@ -15,16 +15,13 @@
 #ifndef ROMEA_CORE_PATH_FOLLOWING__LONGITUDINAL_CONTROL__BASE_HPP_
 #define ROMEA_CORE_PATH_FOLLOWING__LONGITUDINAL_CONTROL__BASE_HPP_
 
-// std
-#include <memory>
-
 // romea
-#include "romea_core_common/geometry/Twist2D.hpp"
-#include "romea_core_common/log/SimpleFileLogger.hpp"
-#include "romea_core_path/PathFrenetPose2D.hpp"
-#include "romea_core_path/PathPosture2D.hpp"
-#include "romea_core_path_following/logs.hpp"
-#include "romea_core_path_following/traits.hpp"
+#include <romea_core_common/geometry/Twist2D.hpp>
+#include <romea_core_common/log/SimpleFileLogger.hpp>
+#include <romea_core_path/PathFrenetPose2D.hpp>
+#include <romea_core_path/PathPosture2D.hpp>
+#include <romea_core_path_following/logs.hpp>
+#include <romea_core_path_following/traits.hpp>
 
 namespace romea::core::path_following
 {
@@ -37,7 +34,7 @@ public:
   using OdometryMeasure = typename Traits<CommandType>::Measure;
 
 public:
-  LongitudinalControlBase() {}
+  virtual ~LongitudinalControlBase() {}
 
   virtual double compute_linear_speed(
     const SetPoint & setpoint,

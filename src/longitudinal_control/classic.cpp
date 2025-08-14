@@ -57,7 +57,7 @@ double LongitudinalControlClassic<OneAxleSteeringCommand>::compute_linear_speed(
 
   // Max speed computation for initial error
 
-  double Max_Speed2 = (D/(3*Tau)) *((N+1)/N + 0.3333* logf(Ymax/abs(frenet_pose.lateralDeviation)));
+  double Max_Speed2 = (D/(3*Tau)) *((N+1)/N + 0.3333* std::log(Ymax/abs(frenet_pose.lateralDeviation)));
   // Max_Speed2 = 0.5;
 
   // std::cout << "max_speed2: " << Max_Speed2 << std::endl;
