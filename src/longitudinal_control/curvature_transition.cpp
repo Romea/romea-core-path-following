@@ -26,9 +26,9 @@ namespace romea::core::path_following
 
 //-----------------------------------------------------------------------------
 template<class CommandType>
-LongitudinalControlCurvatureTransition<
-  CommandType>::LongitudinalControlCurvatureTransition(const Parameters & parameters)
-: minimal_linear_speed_(parameters.minimal_linear_speed)
+LongitudinalControlCurvatureTransition<CommandType>::LongitudinalControlCurvatureTransition(
+  const Parameters & parameters)
+: params_(parameters)
 {
 }
 
@@ -43,24 +43,32 @@ double LongitudinalControlCurvatureTransition<CommandType>::compute_linear_speed
   const Twist2D & /*filtered_twist*/)
 {
   double desired_linear_speed = setpoint.linear_speed;
+  const double current_curvature = path_posture.curvature;
+
   // parameters
-  double Ymax = 0.20;  //Maximal admissible error
-  double YmaxAbs = 5;  // Maximal possible error before stopping algo
-  double Tau = 1.0;    // settling time on angular speed
-  double current_curvature = path_posture.curvature;
-  double v_max = 2.5;
+  // y_max: Maximal admissible error
+  // tau: settling time on angular speed
+  // n: parameters for settling convergence ratio between lat and ang dynamics >3
+  // d: Settling distance in m for lateral deviation (given by control law gains)
+  const double y_max = params_.lateral_error_max;
+  const double tau = params_.settling_time;
+  const double d = params_.settling_distance;
+  const double n = params_.convergence_ratio;
 
   // Max speed computation after initialization on path (curvarture transition)
-  double Max_Speed = sqrt(Ymax / (Tau * fabs(future_curvature - current_curvature)));
-
-  desired_linear_speed = std::min(Max_Speed, desired_linear_speed);
+  double max_speed = std::sqrt(y_max / (tau * std::fabs(future_curvature - current_curvature)));
 
   // Max speed computation for initial error
-  double Max_Speed2 = v_max * cos(fabs(2 * frenet_pose.courseDeviation)) *
-                      cos(fabs(frenet_pose.lateralDeviation / YmaxAbs));
+  double max_speed2 =
+    (d / (3 * tau)) *
+    ((n + 1) / n + 0.3333 * std::log(y_max / std::abs(frenet_pose.lateralDeviation)));
 
-  desired_linear_speed = std::min(Max_Speed2, desired_linear_speed);
+  // apply constraints to linear_speed
+  desired_linear_speed = std::min(max_speed, desired_linear_speed);
+  desired_linear_speed = std::min(max_speed2, desired_linear_speed);
+  desired_linear_speed = std::max(params_.minimal_linear_speed, desired_linear_speed);
 
+  // temporary disable speed control
   return desired_linear_speed;
 }
 
@@ -75,7 +83,6 @@ template<class CommandType>
 void LongitudinalControlCurvatureTransition<CommandType>::reset()
 {
 }
-
 
 template class LongitudinalControlCurvatureTransition<OneAxleSteeringCommand>;
 template class LongitudinalControlCurvatureTransition<TwoAxleSteeringCommand>;

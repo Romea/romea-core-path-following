@@ -28,6 +28,10 @@ public:
   struct Parameters
   {
     double minimal_linear_speed;
+    double lateral_error_max;
+    double settling_time;
+    double settling_distance;
+    double convergence_ratio;
   };
   using OdometryMeasure = typename LongitudinalControlBase<CommandType>::OdometryMeasure;
 
@@ -47,7 +51,7 @@ public:
   void reset() override;
 
 protected:
-  double minimal_linear_speed_;
+  Parameters params_;
 };
 
 }  // namespace romea::core::path_following

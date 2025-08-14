@@ -22,95 +22,29 @@ namespace romea::core::path_following
 {
 
 template<class CommandType>
-class LongitudinalControlConstant
-{
-};
-
-template<>
-class LongitudinalControlConstant<OneAxleSteeringCommand>
-: public LongitudinalControlBase<OneAxleSteeringCommand>
+class LongitudinalControlConstant : public LongitudinalControlBase<CommandType>
 {
 public:
-  struct Parameters
-  {
-    double minimal_linear_speed;
-  };
+  struct Parameters {};
+  using OdometryMeasure = typename LongitudinalControlBase<CommandType>::OdometryMeasure;
 
 public:
-  explicit LongitudinalControlConstant(const Parameters & parameters);
+  LongitudinalControlConstant(const Parameters & /*parameters*/) {}
 
   double compute_linear_speed(
     const SetPoint & setpoint,
-    const PathFrenetPose2D & frenet_pose,
-    const PathPosture2D & path_posture,
-    double future_curvature,
-    const OdometryMeasure & odometry_measure,
-    const Twist2D & filtered_twist) override;
-
-  void log(SimpleFileLogger & logger) override;
-
-  void reset() override;
-
-protected:
-  double minimal_linear_speed_;
-};
-
-template<>
-class LongitudinalControlConstant<SkidSteeringCommand>
-: public LongitudinalControlBase<SkidSteeringCommand>
-{
-public:
-  struct Parameters
+    const PathFrenetPose2D &  /*frenet_pose*/,
+    const PathPosture2D &  /*path_posture*/,
+    double  /*future_curvature*/,
+    const OdometryMeasure &  /*odometry_measure*/,
+    const Twist2D &  /*filtered_twist*/) override
   {
-    double minimal_linear_speed;
-  };
+    return setpoint.linear_speed;
+  }
 
-public:
-  explicit LongitudinalControlConstant(const Parameters & parameters);
+  void log(SimpleFileLogger & /*logger*/) override {}
 
-  double compute_linear_speed(
-    const SetPoint & setpoint,
-    const PathFrenetPose2D & frenet_pose,
-    const PathPosture2D & path_posture,
-    double future_curvature,
-    const OdometryMeasure & odometry_measure,
-    const Twist2D & filtered_twist) override;
-
-  void log(SimpleFileLogger & logger) override;
-
-  void reset() override;
-
-protected:
-  double minimal_linear_speed_;
-};
-
-template<>
-class LongitudinalControlConstant<TwoAxleSteeringCommand>
-: public LongitudinalControlBase<TwoAxleSteeringCommand>
-{
-public:
-  struct Parameters
-  {
-    double minimal_linear_speed;
-  };
-
-public:
-  explicit LongitudinalControlConstant(const Parameters & parameters);
-
-  double compute_linear_speed(
-    const SetPoint & setpoint,
-    const PathFrenetPose2D & frenet_pose,
-    const PathPosture2D & path_posture,
-    double future_curvature,
-    const OdometryMeasure & odometry_measure,
-    const Twist2D & filtered_twist) override;
-
-  void log(SimpleFileLogger & logger) override;
-
-  void reset() override;
-
-protected:
-  double minimal_linear_speed_;
+  void reset() override {}
 };
 
 }  // namespace romea::core::path_following

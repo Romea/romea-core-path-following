@@ -35,58 +35,32 @@ LongitudinalControlClassic<OneAxleSteeringCommand>::LongitudinalControlClassic(
 double LongitudinalControlClassic<OneAxleSteeringCommand>::compute_linear_speed(
   const SetPoint & setpoint,
   const PathFrenetPose2D & frenet_pose,
-  const PathPosture2D & path_posture,
-  double future_curvature,
-  const OdometryMeasure & /*odometry_measure*/,
+  const PathPosture2D &  /*path_posture*/,
+  double  /*future_curvature*/,
+  const OdometryMeasure & odometry_measure,
   const Twist2D & /*filtered_twist*/)
 {
   double desired_linear_speed = setpoint.linear_speed;
-  // parameters
-  double Ymax = 0.20;  //Maximal admissible error
-  double Tau = 1.0;    // settling time on angular speed
-  double current_curvature = path_posture.curvature;
-  double v_max = 2.5;
-  double N=10.0; // parameters for settling convergence ratio between lateral and angular dynamics >3
-  double D=5.0; // Settling distance in m for lateral deviation (given by control law gains)
 
+  if (std::abs(desired_linear_speed) < 1e-3) {
+    return desired_linear_speed;
+  }
 
-  // Max speed computation after initialization on path (curvarture transition)
-  double Max_Speed = sqrt(Ymax / (Tau * fabs(future_curvature - current_curvature)));
+  double lat_error = frenet_pose.lateralDeviation - setpoint.lateral_deviation;
+  double ang_error = frenet_pose.courseDeviation - setpoint.course_deviation;
+  double steering_angle = get_front_steering_angle(odometry_measure);
 
-  desired_linear_speed = std::min(Max_Speed, desired_linear_speed);
+  double linear_speed_command = std::abs(setpoint.linear_speed);
+  linear_speed_command -= 2 * lat_error * lat_error;
+  linear_speed_command -= 10 * ang_error * ang_error;
 
-  // Max speed computation for initial error
+  if (fabs(steering_angle) < 10 / 180. * M_PI) {
+    linear_speed_command -= 1 * std::abs(steering_angle);
+  }
 
-  double Max_Speed2 = (D/(3*Tau)) *((N+1)/N + 0.3333* std::log(Ymax/abs(frenet_pose.lateralDeviation)));
-  // Max_Speed2 = 0.5;
+  linear_speed_command = std::max(linear_speed_command, minimal_linear_speed_);
 
-  // std::cout << "max_speed2: " << Max_Speed2 << std::endl;
-
-  desired_linear_speed = std::min(Max_Speed2, desired_linear_speed);
-  desired_linear_speed = std::max(minimal_linear_speed_, desired_linear_speed);
-
-  // temporary disable speed control
-  return desired_linear_speed;
-
-  // if (std::abs(desired_linear_speed) < 1e-3) {
-  //   return desired_linear_speed;
-  // }
-  //
-  // double lat_error = frenet_pose.lateralDeviation - setpoint.lateral_deviation;
-  // double ang_error = frenet_pose.courseDeviation - setpoint.course_deviation;
-  // double steering_angle = get_front_steering_angle(odometry_measure);
-  //
-  // double linear_speed_command = std::abs(setpoint.linear_speed);
-  // linear_speed_command -= 2 * lat_error * lat_error;
-  // linear_speed_command -= 10 * ang_error * ang_error;
-  //
-  // if (fabs(steering_angle) < 10 / 180. * M_PI) {
-  //   linear_speed_command -= 1 * std::abs(steering_angle);
-  // }
-  //
-  // linear_speed_command = std::max(linear_speed_command, minimal_linear_speed_);
-  //
-  // return std::copysign(linear_speed_command, desired_linear_speed);
+  return std::copysign(linear_speed_command, desired_linear_speed);
 }
 
 //-----------------------------------------------------------------------------
