@@ -83,7 +83,7 @@ template<typename CommandType>
 void FSM<CommandType>::init_callback_()
 {
   if (matched_points_.empty()) {
-    // setStatus(FSMStatus::FAILED);
+    set_status(FSMStatus::FAILED);
   } else {
     current_section_index_ = matched_points_[0].sectionIndex;
     set_status(FSMStatus::FOLLOW);
